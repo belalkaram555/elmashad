@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 // Palette mapping for consistent visualization
-const CHART_COLORS = ['#FF9F43', '#00CFDE', '#28C76F', '#EA5455', '#7367F0', '#F1C40F'];
+const CHART_COLORS = ['#FF9F43', '#374151', '#28C76F', '#EA5455', '#7367F0', '#F1C40F'];
 
 const StatCard = ({ title, value, icon: Icon, colorClass, subtitle }: any) => (
   <div className="bg-surface p-6 rounded-[32px] border border-cardAccent relative overflow-hidden group shadow-sm hover:shadow-md transition-all duration-300">

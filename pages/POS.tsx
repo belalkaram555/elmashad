@@ -21,7 +21,7 @@ import { printTaxInvoiceA4, printThermalReceipt } from '../utils/printService';
 import { generateZatcaBase64 } from '../utils/zatca';
 
 const CATEGORY_COLORS = [
-  '#FF9F43', '#28C76F', '#00CFDE', '#EA5455',
+  '#FF9F43', '#28C76F', '#374151', '#EA5455',
   '#7367F0', '#F1C40F', '#E91E63', '#009688', '#607D8B', '#9C27B0'
 ];
 

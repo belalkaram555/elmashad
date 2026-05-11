@@ -16,7 +16,7 @@ type Tab = 'list' | 'attendance' | 'loans' | 'payroll';
 const EMPLOYEE_ROLES = [
   { value: 'admin', labelAr: 'مدير النظام', labelEn: 'Admin', icon: ShieldAlert, color: '#EA5455' },
   { value: 'manager', labelAr: 'مدير', labelEn: 'Manager', icon: Shield, color: '#FF9F43' },
-  { value: 'accountant', labelAr: 'محاسب', labelEn: 'Accountant', icon: FileText, color: '#00CFDE' },
+  { value: 'accountant', labelAr: 'محاسب', labelEn: 'Accountant', icon: FileText, color: '#374151' },
   { value: 'cashier', labelAr: 'كاشير', labelEn: 'Cashier', icon: Wallet, color: '#28C76F' },
   { value: 'chef', labelAr: 'شيف', labelEn: 'Chef', icon: UserIcon, color: '#7367F0' },
 ];

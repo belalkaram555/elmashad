@@ -124,7 +124,7 @@ const MENU_GROUPS: MenuGroup[] = [
     labelEn: 'Entertainment',
     items: [
       { id: 'playstation', labelAr: 'البلايستيشن', labelEn: 'PlayStation', icon: Gamepad2, path: '/gaming/playstation', color: '#FF9F43' },
-      { id: 'billiard', labelAr: 'البينج', labelEn: 'Billiard', icon: CircleDot, path: '/gaming/billiard', color: '#00CFDE' },
+      { id: 'billiard', labelAr: 'البينج', labelEn: 'Billiard', icon: CircleDot, path: '/gaming/billiard', color: '#374151' },
     ]
   },
   {

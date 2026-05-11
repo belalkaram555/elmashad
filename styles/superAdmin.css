@@ -39,6 +39,7 @@
     --sa-warning: #FF9F43;
     --sa-danger: #EA5455;
     --sa-info: #00CFDE;
+    --sa-info: #374151;
     --sa-accent-gradient: linear-gradient(135deg, #FF9F43 0%, #ff8c1a 50%, #ff7800 100%);
     --sa-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     --sa-shadow-hover: 0 8px 30px rgba(255, 159, 67, 0.25);
