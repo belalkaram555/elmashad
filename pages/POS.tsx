@@ -67,36 +67,6 @@ const POS: React.FC = () => {
   const [editHeldLabel, setEditHeldLabel] = useState('');
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
 
-  // Promo Slider State
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const promoSlides = useMemo(() => [
-    {
-      title: "عرض الصباح المميز ☕🥐",
-      desc: "ابدأ يومك بنشاط! قهوة إسبريسو كلاسيكية مع كرواسون زبدة طازج بخصم 20%",
-      bg: "from-amber-600 to-orange-500",
-      tag: "الأكثر مبيعاً"
-    },
-    {
-      title: "انتعاش الصيف مع بستاشيو لاتيه 🧊💚",
-      desc: "بستاشيو لاتيه بارد ومثلج مع دبل شوت إسبريسو لترطيب يومك الحار",
-      bg: "from-emerald-600 to-teal-500",
-      tag: "جديدنا"
-    },
-    {
-      title: "حلويات المشهد الفاخرة 🍰✨",
-      desc: "تذوق تشكيلة واسعة من الكعك والحلويات المصنوعة يدوياً بكل حب وشغف",
-      bg: "from-pink-600 to-purple-600",
-      tag: "موصى به"
-    }
-  ], []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % promoSlides.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [promoSlides.length]);
-
   const { subtotal, serviceCharge, tax, total } = useCartCalculation(cart, settings, orderType as any);
   const currency = language === 'ar' ? settings.currencyAr : settings.currencyEn;
   const receivedNum = parseFloat(cashReceived) || 0;
@@ -230,7 +200,7 @@ const POS: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-7rem)] gap-3 font-cairo select-none relative pb-16 lg:pb-0">
+    <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-7rem)] gap-3 font-cairo select-none relative pb-16 lg:pb-0 overflow-y-auto lg:overflow-hidden">
 
       {/* Mobile Wizard Steps Indicator */}
       <div className="lg:hidden flex items-center justify-between bg-surface border-b border-cardAccent p-3 rounded-2xl mb-1 no-print shrink-0">
@@ -279,7 +249,7 @@ const POS: React.FC = () => {
 
       {/* ───── Step 1 (Mobile Only): Order Type & Customer Selector ───── */}
       {mobileStep === 1 && (
-        <div className="lg:hidden flex-1 flex flex-col justify-start p-5 bg-surface rounded-[28px] border border-cardAccent shadow-xl overflow-y-auto no-print space-y-6">
+        <div className="lg:hidden w-full flex flex-col justify-start p-5 bg-surface rounded-[28px] border border-cardAccent shadow-xl h-auto overflow-visible no-print space-y-6">
           <div className="text-center py-4">
             <h3 className="text-lg font-black text-textPrimary">تحديد نوع الطلب</h3>
             <p className="text-secondary text-xs mt-1">يرجى تحديد نوع الخدمة والعميل للمتابعة</p>
@@ -370,7 +340,7 @@ const POS: React.FC = () => {
       )}
 
       {/* ───── Left: Categories & Products ───── */}
-      <div className={`flex-1 flex flex-col gap-3 overflow-hidden no-print ${mobileStep === 2 ? 'flex' : 'hidden lg:flex'}`}>
+      <div className={`flex-1 flex flex-col gap-3 lg:overflow-hidden overflow-visible no-print ${mobileStep === 2 ? 'flex' : 'hidden lg:flex'}`}>
 
         {/* Categories bar */}
         <div className="bg-surface p-3 rounded-[24px] border border-cardAccent shadow-sm">
@@ -403,60 +373,8 @@ const POS: React.FC = () => {
           </div>
         </div>
 
-        {/* Gorgeous Promotional Slider Banner */}
-        <div className="relative w-full h-28 sm:h-36 rounded-[22px] overflow-hidden border border-white/5 shadow-lg group shrink-0 select-none">
-          <div 
-            className="flex h-full transition-all duration-500 ease-out"
-            style={{ transform: `translateX(${currentSlide * 100}%)` }}
-          >
-            {promoSlides.map((slide, idx) => (
-              <div 
-                key={idx} 
-                className={`w-full h-full shrink-0 bg-gradient-to-r ${slide.bg} p-4 sm:p-5 flex flex-col justify-center relative text-white`}
-                dir="rtl"
-              >
-                {/* Badge */}
-                <div className="absolute top-3 left-3 bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase border border-white/10">
-                  {slide.tag}
-                </div>
-                
-                {/* Content */}
-                <div className="max-w-[85%] text-right">
-                  <h4 className="text-sm sm:text-base font-black mb-1 drop-shadow-sm">{slide.title}</h4>
-                  <p className="text-[10px] sm:text-xs text-white/90 font-bold leading-relaxed max-w-xl drop-shadow-sm">{slide.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Navigation Arrows */}
-          <button 
-            onClick={() => setCurrentSlide((prev) => (prev - 1 + promoSlides.length) % promoSlides.length)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all border border-white/5"
-          >
-            <ChevronRight size={14} />
-          </button>
-          <button 
-            onClick={() => setCurrentSlide((prev) => (prev + 1) % promoSlides.length)}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all border border-white/5"
-          >
-            <ChevronLeft size={14} />
-          </button>
-
-          {/* Dot Indicators */}
-          <div className="absolute bottom-2.5 right-1/2 translate-x-1/2 flex gap-1.5 z-10">
-            {promoSlides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-white w-3' : 'bg-white/40'}`}
-              />
-            ))}
-          </div>
-        </div>
-
         {/* Products grid */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="lg:flex-1 lg:overflow-y-auto overflow-visible custom-scrollbar">
           <div className={`grid gap-2 ${isCompactView ? 'grid-cols-4 md:grid-cols-6 lg:grid-cols-8' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
             {filteredItems.map(item => {
               const count = cart.filter(i => i.id === item.id).reduce((s, i) => s + i.quantity, 0);
@@ -482,7 +400,7 @@ const POS: React.FC = () => {
       </div>
 
       {/* ───── Right: Cart Sidebar ───── */}
-      <div className={`w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl overflow-hidden shrink-0 lg:rounded-none rounded-t-[28px] ${mobileStep === 3 ? 'flex h-full pb-2' : 'hidden lg:flex'}`}>
+      <div className={`w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl lg:overflow-hidden overflow-visible h-auto shrink-0 lg:rounded-none rounded-t-[28px] ${mobileStep === 3 ? 'flex pb-20' : 'hidden lg:flex'}`}>
 
         {/* Cart Header */}
         <div className="p-3 border-b border-cardAccent flex items-center justify-between bg-background/20 shrink-0">
@@ -579,7 +497,7 @@ const POS: React.FC = () => {
         )}
 
         {/* Cart Items */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1.5">
+        <div className="lg:flex-1 lg:overflow-y-auto overflow-visible custom-scrollbar p-2 space-y-1.5">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-secondary opacity-15">
               <ShoppingBag size={36} />
