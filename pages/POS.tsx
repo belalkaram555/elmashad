@@ -40,6 +40,7 @@ const POS: React.FC = () => {
   const [orderType, setOrderType] = useState<'takeaway' | 'customer'>('customer');
   const [cashReceived, setCashReceived] = useState<string>('');
   const [isCompactView, setIsCompactView] = useState(settings.defaultCompactView || false);
+  const [activeMobileTab, setActiveMobileTab] = useState<'menu' | 'cart'>('menu');
 
   // Customer
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
@@ -197,7 +198,7 @@ const POS: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col lg:flex-row h-full lg:h-[calc(100vh-7rem)] gap-3 font-cairo select-none relative">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-7rem)] gap-3 font-cairo select-none relative pb-16 lg:pb-0">
 
       {/* Shift closed overlay */}
       {!activeShift && userRole === 'cashier' && (
@@ -214,7 +215,7 @@ const POS: React.FC = () => {
       )}
 
       {/* ───── Left: Categories & Products ───── */}
-      <div className="flex-1 flex flex-col gap-3 overflow-hidden no-print">
+      <div className={`flex-1 flex flex-col gap-3 overflow-hidden no-print ${activeMobileTab === 'menu' ? 'flex' : 'hidden lg:flex'}`}>
 
         {/* Categories bar */}
         <div className="bg-surface p-3 rounded-[24px] border border-cardAccent shadow-sm">
@@ -229,7 +230,7 @@ const POS: React.FC = () => {
               <LayoutGrid size={15} />
             </button>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex lg:flex-wrap overflow-x-auto lg:overflow-x-visible scrollbar-hidden gap-1.5 pb-1 lg:pb-0 whitespace-nowrap">
             {[{ id: 'all', nameAr: 'الكل', nameEn: 'All' }, ...categories].map((cat, idx) => {
               const color = cat.id === 'all' ? '#FF9F43' : CATEGORY_COLORS[(idx - 1) % CATEGORY_COLORS.length];
               const isActive = selectedCategoryId === cat.id;
@@ -238,7 +239,7 @@ const POS: React.FC = () => {
                   key={cat.id}
                   onClick={() => setSelectedCategoryId(cat.id)}
                   style={{ backgroundColor: isActive ? color : 'transparent', borderColor: isActive ? color : 'var(--color-card-accent)', color: isActive ? '#FFF' : 'var(--color-secondary)' }}
-                  className="px-4 py-1.5 rounded-lg text-[11px] font-black transition-all border"
+                  className="px-4 py-1.5 rounded-lg text-[11px] font-black transition-all border inline-block"
                 >
                   {language === 'ar' ? cat.nameAr : (cat as any).nameEn}
                 </button>
@@ -274,7 +275,7 @@ const POS: React.FC = () => {
       </div>
 
       {/* ───── Right: Cart Sidebar ───── */}
-      <div className="w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl overflow-hidden shrink-0 rounded-t-[28px] lg:rounded-none">
+      <div className={`w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl overflow-hidden shrink-0 lg:rounded-none rounded-t-[28px] ${activeMobileTab === 'cart' ? 'flex h-full pb-2' : 'hidden lg:flex'}`}>
 
         {/* Cart Header */}
         <div className="p-3 border-b border-cardAccent flex items-center justify-between bg-background/20 shrink-0">
@@ -464,6 +465,32 @@ const POS: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Navigation Tabs */}
+      <div className="lg:hidden absolute bottom-0 left-0 right-0 h-14 bg-surface border-t border-cardAccent flex justify-around items-center z-[40] no-print">
+        <button
+          onClick={() => setActiveMobileTab('menu')}
+          className={`flex-1 flex flex-col items-center justify-center h-full transition-all gap-0.5 ${activeMobileTab === 'menu' ? 'text-primary' : 'text-secondary'}`}
+        >
+          <LayoutGrid size={18} />
+          <span className="text-[10px] font-black">الأصناف</span>
+        </button>
+        
+        <button
+          onClick={() => setActiveMobileTab('cart')}
+          className={`flex-1 flex flex-col items-center justify-center h-full transition-all gap-0.5 relative ${activeMobileTab === 'cart' ? 'text-primary' : 'text-secondary'}`}
+        >
+          <div className="relative">
+            <ShoppingBag size={18} />
+            {cart.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-primary text-background rounded-full text-[8px] flex items-center justify-center font-black animate-pulse">
+                {cart.reduce((s, i) => s + i.quantity, 0)}
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] font-black">السلة</span>
+        </button>
       </div>
 
       {/* ═══════════════════════════════════ MODALS ═══════════════════════════════════ */}
