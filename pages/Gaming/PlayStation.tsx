@@ -7,7 +7,7 @@ import { Order } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import {
   Gamepad2, Plus, Play, Square, Clock, DollarSign,
-  Trash2, CheckCircle2, User, CreditCard, Banknote, Edit3
+  Trash2, CheckCircle2, User, CreditCard, Banknote, Edit3, History
 } from 'lucide-react';
 import { Modal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Atoms';
@@ -15,6 +15,33 @@ import { api } from '../../services/api';
 import { idbPut, idbDelete } from '../../services/offlineDB';
 import { queueOperation } from '../../services/syncService';
 import { isOnline } from '../../services/api';
+
+
+const GAMING_EDITS_KEY = 'elmashad-gaming-invoice-edits';
+
+interface GamingEditLog {
+  id: string;
+  sessionId: string;
+  deviceName: string;
+  deviceType: string;
+  editedBy: string;
+  editedByRole: string;
+  editedAt: string;
+  changesSummary: string;
+}
+
+const readGamingEdits = (): GamingEditLog[] => {
+  try {
+    const raw = localStorage.getItem(GAMING_EDITS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeGamingEdits = (logs: GamingEditLog[]) => {
+  localStorage.setItem(GAMING_EDITS_KEY, JSON.stringify(logs.slice(0, 500)));
+};
 
 const PlayStation: React.FC = () => {
   const { customers, settings, orders, gamingDevices, setGamingDevices, gamingSessions, setGamingSessions, addOrder, updateOrder, deleteOrder } = useData();
@@ -48,6 +75,17 @@ const PlayStation: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card'>('cash');
   const [editInvoiceSession, setEditInvoiceSession] = useState<GamingSession | null>(null);
   const [editInvoiceAmount, setEditInvoiceAmount] = useState('');
+  const [editInvoiceDuration, setEditInvoiceDuration] = useState('');
+  const [showEditsModal, setShowEditsModal] = useState(false);
+  const [gamingEditLogs, setGamingEditLogs] = useState<GamingEditLog[]>(() => readGamingEdits());
+
+  const visibleGamingEditLogs = React.useMemo(() => {
+    const logs = gamingEditLogs.filter(log => log.deviceType === 'playstation');
+    if (userRole === 'cashier') {
+      return logs.filter(log => log.editedBy === (user || ''));
+    }
+    return logs;
+  }, [gamingEditLogs, userRole, user]);
 
   const getActiveSession = (deviceId: string) =>
     sessions.find(s => s.deviceId === deviceId && s.status === 'active');
@@ -218,12 +256,19 @@ const PlayStation: React.FC = () => {
   const handleOpenEditInvoice = (session: GamingSession) => {
     setEditInvoiceSession(session);
     setEditInvoiceAmount((session.totalAmount || 0).toString());
+    setEditInvoiceDuration((session.durationMinutes || 0).toString());
   };
 
   const handleSaveInvoice = () => {
     if (!editInvoiceSession) return;
     const amount = Math.max(0, parseFloat(editInvoiceAmount) || 0);
-    const updatedSession = { ...editInvoiceSession, totalAmount: amount };
+    const duration = Math.max(0, parseInt(editInvoiceDuration) || 0);
+
+    const changed: string[] = [];
+    if (amount !== editInvoiceSession.totalAmount) changed.push(`الإجمالي: ${editInvoiceSession.totalAmount} -> ${amount}`);
+    if (duration !== editInvoiceSession.durationMinutes) changed.push(`المدة: ${editInvoiceSession.durationMinutes || 0} دقيقة -> ${duration} دقيقة`);
+
+    const updatedSession = { ...editInvoiceSession, totalAmount: amount, durationMinutes: duration };
     setGamingSessions(prev => prev.map(s => s.id === editInvoiceSession.id ? updatedSession : s));
     updateOrder(`GAME-${editInvoiceSession.id}`, {
       subtotal: amount,
@@ -231,11 +276,30 @@ const PlayStation: React.FC = () => {
       amountReceived: amount,
       items: (orders.find(o => o.id === `GAME-${editInvoiceSession.id}`)?.items || []).map(item => ({
         ...item,
+        nameAr: `جلسة ${editInvoiceSession.deviceType === 'playstation' ? 'بلايستيشن' : 'بينج'} - ${editInvoiceSession.deviceName} (${formatDuration(duration)})`,
+        nameEn: `Gaming session - ${editInvoiceSession.deviceName} (${formatDuration(duration)})`,
         basePrice: amount,
         totalItemPrice: amount
       }))
     });
     void syncSession('update', updatedSession);
+
+    if (changed.length > 0) {
+      const newLog: GamingEditLog = {
+        id: `edit_${Date.now()}`,
+        sessionId: editInvoiceSession.id,
+        deviceName: editInvoiceSession.deviceName,
+        deviceType: 'playstation',
+        editedBy: user || 'مستخدم',
+        editedByRole: userRole || 'cashier',
+        editedAt: new Date().toISOString(),
+        changesSummary: changed.join(' | '),
+      };
+      const nextLogs = [newLog, ...gamingEditLogs];
+      setGamingEditLogs(nextLogs);
+      writeGamingEdits(nextLogs);
+    }
+
     addToast('تم تعديل فاتورة الجلسة', 'success');
     setEditInvoiceSession(null);
   };
@@ -259,7 +323,12 @@ const PlayStation: React.FC = () => {
             <p className="text-secondary text-xs font-bold">إدارة أجهزة البلايستيشن والجلسات الزمنية</p>
           </div>
         </div>
-        <Button onClick={() => handleOpenDeviceModal()}><Plus size={16} /> إضافة جهاز</Button>
+        <div className="flex gap-2">
+          <button onClick={() => setShowEditsModal(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-black transition-all bg-surface border-cardAccent text-secondary hover:text-textPrimary">
+            <History size={16} /> التعديلات
+          </button>
+          <Button onClick={() => handleOpenDeviceModal()}><Plus size={16} /> إضافة جهاز</Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -452,15 +521,24 @@ const PlayStation: React.FC = () => {
         <Modal.Header title={`تعديل فاتورة ${editInvoiceSession?.deviceName || ''}`} />
         <Modal.Body>
           <div>
-            <label className="text-xs font-black text-secondary uppercase block mb-1.5">إجمالي الفاتورة ({currency})</label>
-            <input
-              autoFocus
-              type="number"
-              className="w-full p-4 bg-background border border-cardAccent rounded-xl text-textPrimary font-black text-xl text-center outline-none focus:border-primary"
-              value={editInvoiceAmount}
-              onChange={e => setEditInvoiceAmount(e.target.value)}
-            />
-          </div>
+              <label className="text-xs font-black text-secondary uppercase block mb-1.5">إجمالي الفاتورة ({currency})</label>
+              <input
+                autoFocus
+                type="number"
+                className="w-full p-4 bg-background border border-cardAccent rounded-xl text-textPrimary font-black text-xl text-center outline-none focus:border-primary"
+                value={editInvoiceAmount}
+                onChange={e => setEditInvoiceAmount(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs font-black text-secondary uppercase block mb-1.5">إجمالي المدة (بالدقائق)</label>
+              <input
+                type="number"
+                className="w-full p-4 bg-background border border-cardAccent rounded-xl text-textPrimary font-black text-xl text-center outline-none focus:border-primary"
+                value={editInvoiceDuration}
+                onChange={e => setEditInvoiceDuration(e.target.value)}
+              />
+            </div>
         </Modal.Body>
         <Modal.Footer>
           <div className="grid grid-cols-2 gap-2">
@@ -469,6 +547,33 @@ const PlayStation: React.FC = () => {
           </div>
         </Modal.Footer>
       </Modal>
+    
+      {showEditsModal && (
+        <Modal isOpen={showEditsModal} onClose={() => setShowEditsModal(false)}>
+          <Modal.Header title="سجل التعديلات" subtitle={userRole === 'cashier' ? 'تعديلاتك فقط' : 'كل التعديلات'} />
+          <Modal.Body>
+            {visibleGamingEditLogs.length === 0 ? (
+              <p className="text-secondary text-sm font-bold text-center">لا توجد تعديلات مسجلة</p>
+            ) : (
+              <div className="space-y-2 max-h-[420px] overflow-y-auto">
+                {visibleGamingEditLogs.map(log => (
+                  <div key={log.id} className="bg-background border border-cardAccent rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="font-black text-textPrimary text-sm">{log.deviceName}</p>
+                      <p className="text-[10px] text-secondary font-bold">{new Date(log.editedAt).toLocaleString('ar-EG')}</p>
+                    </div>
+                    <p className="text-[11px] text-secondary font-bold mb-1">بواسطة: {log.editedBy} ({log.editedByRole === 'admin' ? 'مدير' : 'كاشير'})</p>
+                    <p className="text-xs text-textPrimary font-bold">{log.changesSummary}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button fullWidth onClick={() => setShowEditsModal(false)}>إغلاق</Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </div>
   );
 };
