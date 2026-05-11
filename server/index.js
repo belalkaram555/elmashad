@@ -72,11 +72,16 @@ async function initDB() {
 }
 
 const PORT = process.env.SERVER_PORT || 3001;
-app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`🚀 API server running on port ${PORT}`);
-  try {
-    await initDB();
-  } catch (err) {
-    console.error('❌ DB init failed:', err.message);
-  }
-});
+
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+  app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`🚀 API server running on port ${PORT}`);
+    try {
+      await initDB();
+    } catch (err) {
+      console.error('❌ DB init failed:', err.message);
+    }
+  });
+}
+
+module.exports = app;
