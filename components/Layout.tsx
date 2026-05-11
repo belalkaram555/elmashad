@@ -52,18 +52,9 @@ const MENU_GROUPS: MenuGroup[] = [
     labelAr: 'نقطة البيع',
     labelEn: 'Point of Sale',
     items: [
-      {
-        id: 'pos',
-        labelAr: 'شاشة البيع',
-        labelEn: 'POS Screen',
-        icon: ShoppingCart,
-        color: '#FF9F43',
-        subItems: [
-          { path: '/pos', labelAr: 'شاشة البيع', labelEn: 'Sales Screen', icon: ShoppingCart },
-          { path: '/pos/shifts', labelAr: 'الورديات', labelEn: 'Shifts', icon: History },
-          { path: '/pos/reports', labelAr: 'تقارير البيع', labelEn: 'POS Reports', icon: BarChart },
-        ]
-      },
+      { id: 'pos', path: '/pos', labelAr: 'شاشة البيع', labelEn: 'Sales Screen', icon: ShoppingCart },
+      { id: 'shifts', path: '/pos/shifts', labelAr: 'الورديات', labelEn: 'Shifts', icon: History },
+      { id: 'reports', path: '/pos/reports', labelAr: 'تقارير البيع', labelEn: 'POS Reports', icon: BarChart },
     ]
   },
   {
@@ -71,16 +62,8 @@ const MENU_GROUPS: MenuGroup[] = [
     labelAr: 'الكتالوج',
     labelEn: 'Catalog',
     items: [
-      {
-        id: 'menu-mgmt',
-        labelAr: 'المنيو والتصنيفات',
-        labelEn: 'Menu & Categories',
-        icon: UtensilsCrossed,
-        subItems: [
-          { path: '/menu', labelAr: 'أصناف المنيو', labelEn: 'Menu Items', icon: Package },
-          { path: '/categories', labelAr: 'التصنيفات', labelEn: 'Categories', icon: LayoutDashboard },
-        ]
-      },
+      { id: 'menu-items', path: '/menu', labelAr: 'أصناف المنيو', labelEn: 'Menu Items', icon: Package },
+      { id: 'categories', path: '/categories', labelAr: 'التصنيفات', labelEn: 'Categories', icon: UtensilsCrossed },
     ]
   },
   {
@@ -105,17 +88,9 @@ const MENU_GROUPS: MenuGroup[] = [
     labelAr: 'المخزون',
     labelEn: 'Inventory',
     items: [
-      {
-        id: 'inventory',
-        labelAr: 'المخزون',
-        labelEn: 'Inventory',
-        icon: Package,
-        subItems: [
-          { path: '/inventory', labelAr: 'أرصدة المخزن', labelEn: 'Stock Balances', icon: Package },
-          { path: '/inventory/movement', labelAr: 'حركة المخزن', labelEn: 'Stock Movement', icon: BarChart },
-          { path: '/inventory/shortage', labelAr: 'نواقص المخزون', labelEn: 'Stock Shortage', icon: AlertTriangle },
-        ]
-      },
+      { id: 'stock-balances', path: '/inventory', labelAr: 'أرصدة المخزن', labelEn: 'Stock Balances', icon: Package },
+      { id: 'stock-movement', path: '/inventory/movement', labelAr: 'حركة المخزن', labelEn: 'Stock Movement', icon: BarChart },
+      { id: 'stock-shortage', path: '/inventory/shortage', labelAr: 'نواقص المخزون', labelEn: 'Stock Shortage', icon: AlertTriangle },
     ]
   },
   {
@@ -132,17 +107,9 @@ const MENU_GROUPS: MenuGroup[] = [
     labelAr: 'النظام',
     labelEn: 'System',
     items: [
-      {
-        id: 'settings',
-        labelAr: 'الإعدادات',
-        labelEn: 'Settings',
-        icon: Settings,
-        subItems: [
-          { path: '/settings/system', labelAr: 'إعدادات النظام', labelEn: 'System Settings', icon: Settings },
-          { path: '/settings/users', labelAr: 'إدارة المستخدمين', labelEn: 'Users', icon: ShieldCheck },
-          { path: '/settings/audit', labelAr: 'سجل المراقبة', labelEn: 'Audit Logs', icon: Activity },
-        ]
-      },
+      { id: 'system-settings', path: '/settings/system', labelAr: 'إعدادات النظام', labelEn: 'System Settings', icon: Settings },
+      { id: 'users', path: '/settings/users', labelAr: 'إدارة المستخدمين', labelEn: 'Users', icon: ShieldCheck },
+      { id: 'audit', path: '/settings/audit', labelAr: 'سجل المراقبة', labelEn: 'Audit Logs', icon: Activity },
     ]
   },
 ];
