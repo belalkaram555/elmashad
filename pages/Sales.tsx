@@ -356,7 +356,9 @@ const Sales: React.FC = () => {
                         </div>
                         <div>
                           <p className="font-black text-textPrimary text-xs">{order.performedBy?.name || 'غير محدد'}</p>
-                          <p className="text-[9px] text-secondary font-bold">{order.performedBy?.role || ''}</p>
+                          <p className="text-[9px] text-secondary font-bold">
+                            {order.performedBy?.role ? (['admin', 'manager'].includes(order.performedBy.role) ? 'مدير' : 'كاشير') : ''}
+                          </p>
                         </div>
                       </div>
                     </td>
@@ -599,7 +601,7 @@ const Sales: React.FC = () => {
                       <p className="font-black text-textPrimary text-sm">فاتورة #{log.orderId}</p>
                       <p className="text-[10px] text-secondary font-bold">{new Date(log.editedAt).toLocaleString('ar-EG')}</p>
                     </div>
-                    <p className="text-[11px] text-secondary font-bold mb-1">بواسطة: {log.editedBy} ({log.editedByRole === 'admin' ? 'مدير' : 'كاشير'})</p>
+                    <p className="text-[11px] text-secondary font-bold mb-1">بواسطة: {log.editedBy} ({['admin', 'manager'].includes(log.editedByRole) ? 'مدير' : 'كاشير'})</p>
                     <p className="text-xs text-textPrimary font-bold">{log.changesSummary}</p>
                   </div>
                 ))}

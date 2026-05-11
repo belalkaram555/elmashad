@@ -5,7 +5,7 @@ import { useData } from '../../context/DataContext';
 import { Employee } from '../../types';
 
 const roles = [
-  { id: 'admin', ar: 'مدير النظام', en: 'Admin' },
+  { id: 'admin', ar: 'مدير', en: 'Admin' },
   { id: 'manager', ar: 'مدير', en: 'Manager' },
   { id: 'accountant', ar: 'محاسب', en: 'Accountant' },
   { id: 'cashier', ar: 'كاشير', en: 'Cashier' },
@@ -162,7 +162,7 @@ const UserManagement: React.FC = () => {
             <input placeholder={language === 'ar' ? 'اسم الدخول' : 'Username'} className="w-full p-4 bg-background border border-cardAccent rounded-2xl text-textPrimary font-bold" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
             <input placeholder={language === 'ar' ? 'رقم الهاتف' : 'Phone'} className="w-full p-4 bg-background border border-cardAccent rounded-2xl text-textPrimary font-bold" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
             <input placeholder={editingUser ? (language === 'ar' ? 'كلمة مرور جديدة (اختياري)' : 'New password (optional)') : (language === 'ar' ? 'كلمة المرور' : 'Password')} type="password" className="w-full p-4 bg-background border border-cardAccent rounded-2xl text-textPrimary font-bold" value={formData.password} onChange={e => setFormData({ ...formData, password: e.target.value })} />
-            <select className="w-full p-4 bg-background border border-cardAccent rounded-2xl text-textPrimary font-bold" value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })}>{roles.map(r => <option key={r.id} value={r.id}>{language === 'ar' ? r.ar : r.en}</option>)}</select>
+            <select className="w-full p-4 bg-background border border-cardAccent rounded-2xl text-textPrimary font-bold" value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })}>{roles.filter(r => ['admin', 'cashier'].includes(r.id)).map(r => <option key={r.id} value={r.id}>{language === 'ar' ? r.ar : r.en}</option>)}</select>
             <button onClick={handleSave} className="w-full bg-primary text-background py-5 rounded-2xl font-black text-lg glow-primary">{editingUser ? (language === 'ar' ? 'حفظ التعديلات' : 'Save Changes') : (language === 'ar' ? 'إضافة' : 'Add')}</button>
           </div>
         </div>
