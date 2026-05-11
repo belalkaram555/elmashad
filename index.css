@@ -1,5 +1,36 @@
 /* M4D CAFE POS - Main Styles */
 
+/* ===== CSS VARIABLES & BREAKPOINTS ===== */
+:root {
+  --break-xs: 360px;
+  --break-sm: 640px;
+  --break-md: 768px;
+  --break-lg: 1024px;
+  --break-xl: 1280px;
+
+  --color-bg: #0b1020;
+  --color-surface: rgba(255,255,255,0.03);
+  --color-card-accent: rgba(255,159,67,0.15);
+}
+
+@media (max-width: 768px) {
+  html { font-size: 14px; }
+}
+
+@media (max-width: 420px) {
+  html { font-size: 13px; }
+}
+
+/* Hide scrollbar but keep scrolling (used by Slider) */
+.scrollbar-hidden::-webkit-scrollbar { display: none; }
+.scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Small utility for slider buttons to be visible on mobile too */
+.slider-btn { display: none; }
+@media (min-width: 320px) and (max-width: 640px) {
+  .slider-btn { display: block; position: absolute; top: 50%; transform: translateY(-50%); z-index: 20; }
+}
+
 /* ===== GLOBAL FONT SETTINGS ===== */
 /* Ensure Cairo font is applied consistently across all elements */
 * {

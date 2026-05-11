@@ -4,6 +4,7 @@ import {
     ChevronRight, Zap, AlertTriangle, CheckCircle2, Clock
 } from 'lucide-react';
 import { PlatformStats, Tenant } from '../../types/superAdminTypes';
+import Slider from '../../components/ui/Slider';
 
 // Mock Data
 const mockStats: PlatformStats = {
@@ -176,6 +177,15 @@ const AdminDashboard: React.FC = () => {
                     icon={Activity}
                     color="#06b6d4"
                 />
+            </div>
+
+            {/* Mobile slider for quick glance */}
+            <div className="mt-4 sm:hidden">
+                <Slider>
+                    <div className="sa-glass-card sa-stat-card">Total: {stats.totalTenants}</div>
+                    <div className="sa-glass-card sa-stat-card">Active: {stats.activeTenants}</div>
+                    <div className="sa-glass-card sa-stat-card">MRR: ${stats.monthlyRecurringRevenue}</div>
+                </Slider>
             </div>
 
             {/* Content Grid */}

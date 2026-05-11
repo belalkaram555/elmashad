@@ -570,54 +570,38 @@
         font-size: 24px !important;
     }
 
-    /* Mobile Table - Convert to Card Layout */
+    /* Mobile Table - Keep horizontal scroll for wide tables */
     .sa-table-container {
-        overflow-x: visible;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .sa-table {
-        display: block;
+        width: 100%;
+        min-width: 720px; /* allow horizontal scroll on small viewports for wide tables */
+        border-collapse: separate;
+        border-spacing: 0 8px;
     }
 
     .sa-table thead {
-        display: none;
+        display: table-header-group;
     }
 
     .sa-table tbody {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
+        display: table-row-group;
     }
 
     .sa-table tr {
-        display: flex;
-        flex-direction: column;
-        background: var(--sa-bg-card);
-        border: 1px solid var(--sa-border);
-        border-radius: 16px;
-        padding: 16px;
-        gap: 12px;
+        display: table-row;
+        background: transparent;
     }
 
     .sa-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0 !important;
-        background: transparent !important;
-        border: none !important;
-        border-bottom: 1px solid var(--sa-border) !important;
-        border-radius: 0 !important;
+        padding: 12px 16px !important;
+        background: var(--sa-bg-card);
+        border-top: 1px solid var(--sa-border);
+        border-bottom: 1px solid var(--sa-border);
     }
-
-    .sa-table td:last-child {
-        border-bottom: none !important;
-    }
-
-    .sa-table td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        font-size: 12px;
         color: var(--sa-text-secondary);
         text-transform: uppercase;
     }

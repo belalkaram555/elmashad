@@ -34,21 +34,21 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 font-cairo overflow-y-auto custom-scrollbar">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-6 font-cairo overflow-y-auto custom-scrollbar">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accentBlue/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="bg-surface rounded-[40px] border border-white/5 w-full max-w-[480px] overflow-hidden shadow-2xl relative z-10">
-        <div className="p-12 text-center">
+      <div className="bg-surface rounded-[28px] border border-white/5 w-full max-w-[420px] sm:max-w-[480px] overflow-hidden shadow-2xl relative z-10">
+        <div className="p-8 sm:p-12 text-center">
           <div className="w-20 h-20 bg-primary/10 rounded-[24px] flex items-center justify-center mx-auto mb-8 text-primary shadow-xl border border-primary/20 glow-primary">
             <Terminal size={40} />
           </div>
-          <h2 className="text-4xl font-black text-white mb-2 tracking-tight">M4D CAFE</h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight">M4D CAFE</h2>
           <p className="text-secondary font-bold text-sm uppercase tracking-widest">{t('signInMsg')}</p>
         </div>
 
-        <form onSubmit={handleLogin} className="px-12 pb-12 space-y-6">
+        <form onSubmit={handleLogin} className="px-8 sm:px-12 pb-8 sm:pb-12 space-y-6">
           {error && (
             <div className="bg-red-500/10 text-red-500 border border-red-500/20 p-4 rounded-2xl text-xs text-center font-black">
               {error}
@@ -85,7 +85,7 @@ const Login: React.FC = () => {
 
           <button
             disabled={loading}
-            className={`w-full bg-primary text-background py-5 rounded-2xl font-black text-lg shadow-xl glow-primary hover:scale-[1.02] transition-all active:scale-95 mt-6 ${loading ? 'opacity-70 cursor-wait' : ''}`}
+            className={`w-full bg-primary text-background py-4 sm:py-5 rounded-2xl font-black text-lg shadow-xl glow-primary hover:scale-[1.02] transition-all active:scale-95 mt-6 ${loading ? 'opacity-70 cursor-wait' : ''}`}
           >
             {loading ? '...' : t('signIn')}
           </button>

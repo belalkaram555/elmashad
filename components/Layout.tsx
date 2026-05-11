@@ -407,9 +407,11 @@ const Layout: React.FC = () => {
 
       {/* Sidebar */}
       <aside
+        aria-hidden={!isSidebarOpen && window.innerWidth < 768}
         className={`fixed inset-y-0 right-0 z-50 bg-surface border-l border-cardAccent flex flex-col shadow-2xl transition-all duration-300 md:static md:translate-x-0
           ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        style={{ width: isCollapsed ? '5rem' : '16rem' }}
+        style={{ width: isCollapsed ? '5rem' : '16rem', minWidth: isCollapsed ? '5rem' : '16rem' }}
+        role="navigation"
       >
         {/* Sidebar Header */}
         <div className={`h-16 flex items-center border-b border-cardAccent shrink-0 ${isCollapsed ? 'justify-center' : 'justify-between px-4'}`}>
@@ -475,7 +477,7 @@ const Layout: React.FC = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Top Header */}
-        <header className="h-14 flex items-center justify-between px-4 bg-surface z-30 shrink-0 border-b border-cardAccent">
+        <header className="h-14 flex items-center justify-between px-3 sm:px-4 bg-surface z-30 shrink-0 border-b border-cardAccent">
           <div className="flex items-center gap-2.5 flex-1">
             <button className="md:hidden p-2 text-textPrimary bg-background rounded-lg border border-cardAccent" onClick={() => setIsSidebarOpen(true)}>
               <MenuIcon size={20} />
@@ -484,7 +486,7 @@ const Layout: React.FC = () => {
               className="hidden md:flex p-1.5 text-secondary bg-background rounded-lg border border-cardAccent hover:text-primary transition-colors">
               {isCollapsed ? <PanelLeft size={16} /> : <PanelLeftClose size={16} />}
             </button>
-            <h2 className="text-base font-black text-textPrimary truncate max-w-[160px] md:max-w-none">{getPageTitle()}</h2>
+            <h2 className="text-base sm:text-lg font-black text-textPrimary truncate max-w-[160px] sm:max-w-[400px] md:max-w-none" aria-live="polite">{getPageTitle()}</h2>
             <button onClick={() => setIsCommandOpen(true)}
               className="hidden lg:flex items-center gap-2 px-2.5 py-1.5 bg-background border border-cardAccent rounded-lg text-secondary hover:text-textPrimary transition-all">
               <Search size={12} />
@@ -512,7 +514,7 @@ const Layout: React.FC = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 custom-scrollbar">
+        <main className="flex-1 overflow-x-auto md:overflow-x-hidden overflow-y-auto p-3 sm:p-4 md:p-6 custom-scrollbar">
           <Outlet />
         </main>
       </div>
