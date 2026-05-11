@@ -200,7 +200,7 @@ const POS: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-7rem)] gap-3 font-cairo select-none relative overflow-hidden pb-16 lg:pb-0">
+    <div className="flex flex-col lg:flex-row h-auto lg:h-[calc(100vh-7rem)] gap-3 font-cairo select-none relative overflow-visible lg:overflow-hidden pb-[90px] lg:pb-0">
 
       {/* Mobile Wizard Steps Indicator */}
       <div className="lg:hidden flex items-center justify-between bg-surface border-b border-cardAccent p-3 rounded-2xl mb-1 no-print shrink-0">
@@ -249,7 +249,7 @@ const POS: React.FC = () => {
 
       {/* ───── Step 1 (Mobile Only): Order Type & Customer Selector ───── */}
       {mobileStep === 1 && (
-        <div className="lg:hidden w-full flex flex-col justify-start p-5 bg-surface rounded-[28px] border border-cardAccent shadow-xl h-full overflow-y-auto no-print space-y-6 pb-24">
+        <div className="lg:hidden w-full flex flex-col justify-start p-5 bg-surface rounded-[28px] border border-cardAccent shadow-xl h-auto overflow-visible no-print space-y-6 pb-24">
           <div className="text-center py-4">
             <h3 className="text-lg font-black text-textPrimary">تحديد نوع الطلب</h3>
             <p className="text-secondary text-xs mt-1">يرجى تحديد نوع الخدمة والعميل للمتابعة</p>
@@ -340,10 +340,10 @@ const POS: React.FC = () => {
       )}
 
       {/* ───── Left: Categories & Products ───── */}
-      <div className={`flex-1 flex flex-col gap-3 h-full overflow-hidden no-print ${mobileStep === 2 ? 'flex' : 'hidden lg:flex'}`}>
+      <div className={`flex-1 flex flex-col gap-3 h-auto lg:h-full overflow-visible lg:overflow-hidden no-print ${mobileStep === 2 ? 'flex' : 'hidden lg:flex'}`}>
 
         {/* Categories bar */}
-        <div className="bg-surface p-3 rounded-[24px] border border-cardAccent shadow-sm">
+        <div className="sticky top-0 z-40 bg-surface p-3 rounded-[24px] border border-cardAccent shadow-sm">
           <div className="flex items-center gap-2 mb-3">
             <Filter size={15} className="text-primary" />
             <span className="font-black text-textPrimary text-xs">الأقسام</span>
@@ -374,7 +374,7 @@ const POS: React.FC = () => {
         </div>
 
         {/* Products grid */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar pb-24 lg:pb-4">
+        <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar pb-24 lg:pb-4">
           <div className={`grid gap-2 ${isCompactView ? 'grid-cols-4 md:grid-cols-6 lg:grid-cols-8' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
             {filteredItems.map(item => {
               const count = cart.filter(i => i.id === item.id).reduce((s, i) => s + i.quantity, 0);
@@ -400,7 +400,7 @@ const POS: React.FC = () => {
       </div>
 
       {/* ───── Right: Cart Sidebar ───── */}
-      <div className={`w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl overflow-hidden h-full shrink-0 lg:rounded-none rounded-t-[28px] ${mobileStep === 3 ? 'flex pb-24 lg:pb-0' : 'hidden lg:flex'}`}>
+      <div className={`w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl overflow-visible lg:overflow-hidden h-auto lg:h-full shrink-0 lg:rounded-none rounded-t-[28px] ${mobileStep === 3 ? 'flex pb-24 lg:pb-0' : 'hidden lg:flex'}`}>
 
         {/* Cart Header */}
         <div className="p-3 border-b border-cardAccent flex items-center justify-between bg-background/20 shrink-0">
@@ -497,7 +497,7 @@ const POS: React.FC = () => {
         )}
 
         {/* Cart Items */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1.5">
+        <div className="flex-1 overflow-visible lg:overflow-y-auto custom-scrollbar p-2 space-y-1.5">
           {cart.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-secondary opacity-15">
               <ShoppingBag size={36} />
@@ -593,7 +593,7 @@ const POS: React.FC = () => {
       </div>
 
       {/* Mobile Navigation Wizard Bottom Bar */}
-      <div className="lg:hidden absolute bottom-0 left-0 right-0 h-16 bg-surface border-t border-cardAccent flex items-center px-4 justify-between z-[40] no-print shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[80px] bg-surface border-t border-cardAccent flex items-center px-4 justify-between z-[100] no-print shadow-[0_-4px_20px_rgba(0,0,0,0.1)] pb-2">
         {mobileStep === 1 && (
           <div className="w-full text-center text-[10px] font-bold text-secondary">
             الخطوة 1 من 3: اختيار نوع الخدمة والعميل
