@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { printDocument } from '../utils/printService';
 import { 
   Calendar, User, Clock, Banknote, Landmark, AlertTriangle, 
-  CheckCircle2, Search, TrendingUp, Printer, FileText, Filter 
+  CheckCircle2, Search, TrendingUp, Printer, FileText, Filter, Eye, X 
 } from 'lucide-react';
 
 const Shifts: React.FC = () => {
@@ -17,6 +17,12 @@ const Shifts: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'matched' | 'shortage' | 'surplus'>('all');
   const [dateFilter, setDateFilter] = useState('');
+  const [previewReport, setPreviewReport] = useState<{
+    show: boolean;
+    title: string;
+    subtitle?: string;
+    content: string;
+  } | null>(null);
 
   // Filter history
   const filteredShifts = useMemo(() => {
@@ -39,16 +45,16 @@ const Shifts: React.FC = () => {
     });
   }, [shiftHistory, searchTerm, statusFilter, dateFilter]);
 
-  const handlePrintShiftReport = (shift: any) => {
-    // Find all completed orders for this shift
+  // Shared Report HTML generator
+  const getShiftReportHtml = (shift: any) => {
     const shiftOrders = orders.filter(o => o.shiftId === shift.id && o.status === 'completed');
     const diff = (shift.endBalance || 0) - (shift.expectedBalance || 0);
 
-    const shiftSalesContentHtml = `
-      <div style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right;">
+    return `
+      <div style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; color: #111;">
         <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ddd;">
-          <h3 style="margin-top: 0; border-bottom: 2px solid #333; padding-bottom: 8px; font-size: 14px; font-weight: bold;">معلومات الوردية</h3>
-          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+          <h3 style="margin-top: 0; border-bottom: 2px solid #333; padding-bottom: 8px; font-size: 14px; font-weight: bold; color: #111;">معلومات الوردية</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #333;">
             <tr>
               <td style="padding: 5px 0; width: 50%;"><strong>المستخدم / الكاشير:</strong> ${shift.userName}</td>
               <td style="padding: 5px 0; width: 50%;"><strong>تاريخ الفتح:</strong> ${new Date(shift.startTime).toLocaleDateString('ar-EG')} ${new Date(shift.startTime).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})}</td>
@@ -72,8 +78,8 @@ const Shifts: React.FC = () => {
           </table>
         </div>
 
-        <h3 style="border-bottom: 2px solid #333; padding-bottom: 6px; margin-bottom: 12px; font-size: 13px; font-weight: bold;">المبيعات التفصيلية للوردية (${shiftOrders.length} فاتورة)</h3>
-        <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 11px; margin-bottom: 15px;">
+        <h3 style="border-bottom: 2px solid #333; padding-bottom: 6px; margin-bottom: 12px; font-size: 13px; font-weight: bold; color: #111;">المبيعات التفصيلية للوردية (${shiftOrders.length} فاتورة)</h3>
+        <table style="width: 100%; border-collapse: collapse; text-align: right; font-size: 11px; margin-bottom: 15px; color: #333;">
           <thead>
             <tr style="background: #333; color: #fff;">
               <th style="padding: 8px; border: 1px solid #ddd; text-align: right;"># الفاتورة</th>
@@ -104,13 +110,26 @@ const Shifts: React.FC = () => {
         </table>
       </div>
     `;
+  };
 
+  const handlePrintShiftReport = (shift: any) => {
+    const shiftSalesContentHtml = getShiftReportHtml(shift);
     printDocument({
       title: 'تقرير مبيعات الوردية تفصيلي',
       subtitle: `وردية #${shift.id}`,
       settings,
       content: shiftSalesContentHtml,
       showSignature: true
+    });
+  };
+
+  const handleViewShiftReport = (shift: any) => {
+    const shiftSalesContentHtml = getShiftReportHtml(shift);
+    setPreviewReport({
+      show: true,
+      title: 'تقرير مبيعات الوردية تفصيلي',
+      subtitle: `وردية #${shift.id}`,
+      content: shiftSalesContentHtml
     });
   };
 
@@ -229,14 +248,24 @@ const Shifts: React.FC = () => {
                         )}
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4 text-left">
-                        <button
-                          onClick={() => handlePrintShiftReport(shift)}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-background border border-primary/20 rounded-xl text-[10px] font-black transition-all"
-                          title="عرض مبيعات الوردية PDF"
-                        >
-                          <Printer size={12} />
-                          <span>PDF</span>
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleViewShiftReport(shift)}
+                            className="flex items-center gap-1 px-2 py-1.5 bg-accentBlue/15 hover:bg-accentBlue text-accentBlue hover:text-background border border-accentBlue/25 rounded-xl text-[10px] font-black transition-all"
+                            title="عرض تفاصيل مبيعات الوردية"
+                          >
+                            <Eye size={12} />
+                            <span>عرض</span>
+                          </button>
+                          <button
+                            onClick={() => handlePrintShiftReport(shift)}
+                            className="flex items-center gap-1 px-2 py-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-background border border-primary/20 rounded-xl text-[10px] font-black transition-all"
+                            title="طباعة مبيعات الوردية"
+                          >
+                            <Printer size={12} />
+                            <span>طباعة</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

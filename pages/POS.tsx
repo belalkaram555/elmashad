@@ -15,7 +15,8 @@ import {
   Printer, LayoutGrid, CheckCircle2, Settings2,
   Trash2, PauseCircle, MessageSquare,
   Coins, DoorOpen, Clock, User, Filter, FileText, Search,
-  UserPlus, X, Smartphone, CreditCard, Banknote, Play, Pencil
+  UserPlus, X, Smartphone, CreditCard, Banknote, Play, Pencil,
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { printTaxInvoiceA4, printThermalReceipt } from '../utils/printService';
 import { generateZatcaBase64 } from '../utils/zatca';
@@ -65,6 +66,36 @@ const POS: React.FC = () => {
   const [editHeldId, setEditHeldId] = useState<string | null>(null);
   const [editHeldLabel, setEditHeldLabel] = useState('');
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
+
+  // Promo Slider State
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const promoSlides = useMemo(() => [
+    {
+      title: "عرض الصباح المميز ☕🥐",
+      desc: "ابدأ يومك بنشاط! قهوة إسبريسو كلاسيكية مع كرواسون زبدة طازج بخصم 20%",
+      bg: "from-amber-600 to-orange-500",
+      tag: "الأكثر مبيعاً"
+    },
+    {
+      title: "انتعاش الصيف مع بستاشيو لاتيه 🧊💚",
+      desc: "بستاشيو لاتيه بارد ومثلج مع دبل شوت إسبريسو لترطيب يومك الحار",
+      bg: "from-emerald-600 to-teal-500",
+      tag: "جديدنا"
+    },
+    {
+      title: "حلويات المشهد الفاخرة 🍰✨",
+      desc: "تذوق تشكيلة واسعة من الكعك والحلويات المصنوعة يدوياً بكل حب وشغف",
+      bg: "from-pink-600 to-purple-600",
+      tag: "موصى به"
+    }
+  ], []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % promoSlides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [promoSlides.length]);
 
   const { subtotal, serviceCharge, tax, total } = useCartCalculation(cart, settings, orderType as any);
   const currency = language === 'ar' ? settings.currencyAr : settings.currencyEn;
@@ -369,6 +400,58 @@ const POS: React.FC = () => {
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        {/* Gorgeous Promotional Slider Banner */}
+        <div className="relative w-full h-28 sm:h-36 rounded-[22px] overflow-hidden border border-white/5 shadow-lg group shrink-0 select-none">
+          <div 
+            className="flex h-full transition-all duration-500 ease-out"
+            style={{ transform: `translateX(${currentSlide * 100}%)` }}
+          >
+            {promoSlides.map((slide, idx) => (
+              <div 
+                key={idx} 
+                className={`w-full h-full shrink-0 bg-gradient-to-r ${slide.bg} p-4 sm:p-5 flex flex-col justify-center relative text-white`}
+                dir="rtl"
+              >
+                {/* Badge */}
+                <div className="absolute top-3 left-3 bg-white/20 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase border border-white/10">
+                  {slide.tag}
+                </div>
+                
+                {/* Content */}
+                <div className="max-w-[85%] text-right">
+                  <h4 className="text-sm sm:text-base font-black mb-1 drop-shadow-sm">{slide.title}</h4>
+                  <p className="text-[10px] sm:text-xs text-white/90 font-bold leading-relaxed max-w-xl drop-shadow-sm">{slide.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Navigation Arrows */}
+          <button 
+            onClick={() => setCurrentSlide((prev) => (prev - 1 + promoSlides.length) % promoSlides.length)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all border border-white/5"
+          >
+            <ChevronRight size={14} />
+          </button>
+          <button 
+            onClick={() => setCurrentSlide((prev) => (prev + 1) % promoSlides.length)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 bg-black/20 hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all border border-white/5"
+          >
+            <ChevronLeft size={14} />
+          </button>
+
+          {/* Dot Indicators */}
+          <div className="absolute bottom-2.5 right-1/2 translate-x-1/2 flex gap-1.5 z-10">
+            {promoSlides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-white w-3' : 'bg-white/40'}`}
+              />
+            ))}
           </div>
         </div>
 
