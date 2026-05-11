@@ -1,0 +1,21 @@
+
+{
+  "name": "M4D CAFE POS",
+  "short_name": "M4D CAFE",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#141416",
+  "theme_color": "#FF9F43",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3201/3201521.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3201/3201521.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

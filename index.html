@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#141416" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="manifest.json" />
+    <title>M4D CAFE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Cairo', 'sans-serif'],
+              cairo: ['Cairo', 'sans-serif'],
+            },
+            colors: {
+              primary: '#FF9F43', 
+              background: 'var(--color-bg)',
+              surface: 'var(--color-surface)',
+              cardAccent: 'var(--color-card-accent)',
+              secondary: 'var(--color-secondary)',
+              textPrimary: 'var(--color-text-primary)',
+              accentBlue: '#00CFDE',
+              accentGreen: '#28C76F'
+            },
+            borderRadius: {
+              '2xl': '20px',
+              'xl': '12px'
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --font-main: 'Cairo', sans-serif;
+        /* Light Mode Colors */
+        --color-bg: #F4F7FB;
+        --color-surface: #FFFFFF;
+        --color-card-accent: #E9ECEF;
+        --color-secondary: #6E6B7B;
+        --color-text-primary: #2F2B3D;
+      }
+
+      .dark {
+        /* Dark Mode Colors (Original) */
+        --color-bg: #141416;
+        --color-surface: #1F1F22;
+        --color-card-accent: #28282D;
+        --color-secondary: #9A9A9A;
+        --color-text-primary: #FFFFFF;
+      }
+
+      body {
+        background-color: var(--color-bg);
+        color: var(--color-text-primary);
+        font-family: var(--font-main);
+        -webkit-font-smoothing: antialiased;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--color-bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--color-card-accent);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #FF9F43;
+      }
+
+      [dir="rtl"] .sidebar-active-indicator {
+        right: 0;
+        left: auto;
+      }
+
+      .glow-primary {
+        box-shadow: 0 4px 14px 0 rgba(255, 159, 67, 0.39);
+      }
+
+      input, select, textarea {
+        background-color: var(--color-bg) !important;
+        border: 1px solid var(--color-card-accent) !important;
+        color: var(--color-text-primary) !important;
+        border-radius: 12px !important;
+      }
+      
+      input:focus {
+        border-color: #FF9F43 !important;
+        outline: none;
+      }
+
+      .animate-toast-in {
+        animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      @keyframes toast-in {
+        from { transform: translateY(100%) scale(0.9); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
+      }
+
+      /* Helper Classes for better visibility in light mode */
+      .light-shadow {
+        box-shadow: 0 4px 24px 0 rgba(34, 41, 47, 0.1);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
+    "@google/genai": "https://esm.sh/@google/genai@^0.21.0",
+    "zustand": "https://esm.sh/zustand@^5.0.3",
+    "zustand/middleware": "https://esm.sh/zustand@^5.0.3/middleware",
+    "@tanstack/react-query": "https://esm.sh/@tanstack/react-query@^5.66.0",
+    "react-hook-form": "https://esm.sh/react-hook-form@^7.54.2",
+    "zod": "https://esm.sh/zod@^3.24.1",
+    "@hookform/resolvers/zod": "https://esm.sh/@hookform/resolvers@^3.10.0/zod",
+    "qrcode.react": "https://esm.sh/qrcode.react@^4.0.1",
+    "xlsx": "https://esm.sh/xlsx@0.18.5",
+    "zustand/": "https://esm.sh/zustand@^5.0.9/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-background text-textPrimary antialiased overflow-hidden">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
