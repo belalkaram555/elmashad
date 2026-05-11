@@ -148,7 +148,7 @@ const App: React.FC = () => {
 
                     {/* Dashboard */}
                     <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-                      <Route index element={<Navigate to="/pos" replace />} />
+                      <Route index element={<Dashboard />} />
                     </Route>
 
                     {/* POS */}
