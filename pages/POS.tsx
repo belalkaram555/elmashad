@@ -40,7 +40,7 @@ const POS: React.FC = () => {
   const [orderType, setOrderType] = useState<'takeaway' | 'customer'>('customer');
   const [cashReceived, setCashReceived] = useState<string>('');
   const [isCompactView, setIsCompactView] = useState(settings.defaultCompactView || false);
-  const [activeMobileTab, setActiveMobileTab] = useState<'menu' | 'cart'>('menu');
+  const [mobileStep, setMobileStep] = useState<1 | 2 | 3>(1);
 
   // Customer
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
@@ -183,6 +183,7 @@ const POS: React.FC = () => {
     clearCart(); setCashReceived('');
     setSelectedCustomerId(''); setSelectedCustomerName(''); setCustomerSearch('');
     setShowSuccessModal(false);
+    setMobileStep(1);
   };
 
   const handlePrintOrder = (order: Order, type: 'a4' | 'thermal') => {
@@ -200,6 +201,37 @@ const POS: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-5.5rem)] lg:h-[calc(100vh-7rem)] gap-3 font-cairo select-none relative pb-16 lg:pb-0">
 
+      {/* Mobile Wizard Steps Indicator */}
+      <div className="lg:hidden flex items-center justify-between bg-surface border-b border-cardAccent p-3 rounded-2xl mb-1 no-print shrink-0">
+        <div className="flex items-center gap-1 w-full justify-around">
+          <button 
+            onClick={() => setMobileStep(1)} 
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-xl transition-all ${mobileStep === 1 ? 'bg-primary text-background font-black' : 'text-secondary text-[11px] font-bold'}`}
+          >
+            <span className="w-5 h-5 rounded-full bg-current text-surface flex items-center justify-center text-[10px] font-black">1</span>
+            <span>نوع الطلب</span>
+          </button>
+          <div className="w-5 h-0.5 bg-cardAccent shrink-0" />
+          <button 
+            disabled={orderType === 'customer' && !selectedCustomerId} 
+            onClick={() => setMobileStep(2)} 
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-xl transition-all disabled:opacity-30 ${mobileStep === 2 ? 'bg-primary text-background font-black' : 'text-secondary text-[11px] font-bold'}`}
+          >
+            <span className="w-5 h-5 rounded-full bg-current text-surface flex items-center justify-center text-[10px] font-black">2</span>
+            <span>الأصناف</span>
+          </button>
+          <div className="w-5 h-0.5 bg-cardAccent shrink-0" />
+          <button 
+            disabled={cart.length === 0} 
+            onClick={() => setMobileStep(3)} 
+            className={`flex items-center gap-1 px-2 py-1.5 rounded-xl transition-all disabled:opacity-30 ${mobileStep === 3 ? 'bg-primary text-background font-black' : 'text-secondary text-[11px] font-bold'}`}
+          >
+            <span className="w-5 h-5 rounded-full bg-current text-surface flex items-center justify-center text-[10px] font-black">3</span>
+            <span>الدفع</span>
+          </button>
+        </div>
+      </div>
+
       {/* Shift closed overlay */}
       {!activeShift && userRole === 'cashier' && (
         <div className="absolute inset-0 z-[45] bg-background/60 backdrop-blur-md flex items-center justify-center p-4">
@@ -214,8 +246,100 @@ const POS: React.FC = () => {
         </div>
       )}
 
+      {/* ───── Step 1 (Mobile Only): Order Type & Customer Selector ───── */}
+      {mobileStep === 1 && (
+        <div className="lg:hidden flex-1 flex flex-col justify-start p-5 bg-surface rounded-[28px] border border-cardAccent shadow-xl overflow-y-auto no-print space-y-6">
+          <div className="text-center py-4">
+            <h3 className="text-lg font-black text-textPrimary">تحديد نوع الطلب</h3>
+            <p className="text-secondary text-xs mt-1">يرجى تحديد نوع الخدمة والعميل للمتابعة</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <button 
+              onClick={() => { setOrderType('takeaway'); }}
+              className={`flex flex-col items-center justify-center py-6 px-4 rounded-2xl transition-all border-2 gap-2.5 ${orderType === 'takeaway' ? 'bg-primary/10 border-primary text-primary font-black scale-102' : 'border-cardAccent text-secondary'}`}
+            >
+              <ShoppingBag size={28} />
+              <span className="text-sm font-black">تيك أواي</span>
+            </button>
+            <button 
+              onClick={() => { setOrderType('customer'); }}
+              className={`flex flex-col items-center justify-center py-6 px-4 rounded-2xl transition-all border-2 gap-2.5 ${orderType === 'customer' ? 'bg-accentBlue/10 border-accentBlue text-accentBlue font-black scale-102' : 'border-cardAccent text-secondary'}`}
+            >
+              <User size={28} />
+              <span className="text-sm font-black">عميل</span>
+            </button>
+          </div>
+
+          {orderType === 'customer' && (
+            <div className="p-4 bg-background/40 rounded-2xl border border-cardAccent space-y-3.5 animate-in slide-in-from-bottom-2 duration-300">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-secondary">البحث عن عميل</span>
+                <button 
+                  onClick={() => { setShowNewCustomerModal(true); setNewCustomerName(''); setNewCustomerPhone(''); }}
+                  className="text-xs font-black text-accentBlue hover:underline flex items-center gap-1"
+                >
+                  <UserPlus size={14} /> جديد
+                </button>
+              </div>
+              <div className="relative">
+                <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary" />
+                <input
+                  className="w-full h-11 pr-10 pl-3 bg-background border-2 border-cardAccent rounded-xl text-sm font-bold text-textPrimary outline-none focus:border-accentBlue"
+                  placeholder="ابحث عن عميل بالاسم أو الهاتف..."
+                  value={customerSearch}
+                  onChange={e => { 
+                    setCustomerSearch(e.target.value); 
+                    setShowCustomerDropdown(true); 
+                    if (!e.target.value) { setSelectedCustomerId(''); setSelectedCustomerName(''); } 
+                  }}
+                  onFocus={() => setShowCustomerDropdown(true)}
+                />
+                {selectedCustomerId && (
+                  <button onClick={() => { setSelectedCustomerId(''); setSelectedCustomerName(''); setCustomerSearch(''); }} className="absolute left-2 top-1/2 -translate-y-1/2 text-secondary hover:text-red-400">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              
+              {showCustomerDropdown && filteredCustomers.length > 0 && (
+                <div className="bg-background border border-cardAccent rounded-xl overflow-hidden shadow-lg z-50 max-h-40 overflow-y-auto divide-y divide-cardAccent/30">
+                  {filteredCustomers.map(c => (
+                    <button key={c.id} onClick={() => handleSelectCustomer(c.id, c.name)}
+                      className="w-full flex items-center gap-2.5 px-4 py-3 text-right hover:bg-cardAccent transition-colors">
+                      <User size={15} className="text-accentBlue shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-black text-textPrimary truncate">{c.name}</p>
+                        {c.phone && <p className="text-[11px] text-secondary mt-0.5">{c.phone}</p>}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {selectedCustomerId && (
+                <div className="flex items-center gap-2 bg-accentBlue/10 rounded-xl px-3 py-2.5 border border-accentBlue/20 animate-in fade-in duration-200">
+                  <CheckCircle2 size={15} className="text-accentBlue shrink-0" />
+                  <span className="text-xs font-black text-accentBlue">{selectedCustomerName}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="pt-4 mt-auto">
+            <button
+              disabled={orderType === 'customer' && !selectedCustomerId}
+              onClick={() => setMobileStep(2)}
+              className="w-full h-12 bg-primary text-background hover:bg-primary/90 disabled:opacity-30 rounded-xl font-black text-sm flex items-center justify-center gap-2 shadow-lg transition-all"
+            >
+              <span>التالي: تحديد المنتجات ⬅️</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ───── Left: Categories & Products ───── */}
-      <div className={`flex-1 flex flex-col gap-3 overflow-hidden no-print ${activeMobileTab === 'menu' ? 'flex' : 'hidden lg:flex'}`}>
+      <div className={`flex-1 flex flex-col gap-3 overflow-hidden no-print ${mobileStep === 2 ? 'flex' : 'hidden lg:flex'}`}>
 
         {/* Categories bar */}
         <div className="bg-surface p-3 rounded-[24px] border border-cardAccent shadow-sm">
@@ -275,7 +399,7 @@ const POS: React.FC = () => {
       </div>
 
       {/* ───── Right: Cart Sidebar ───── */}
-      <div className={`w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl overflow-hidden shrink-0 lg:rounded-none rounded-t-[28px] ${activeMobileTab === 'cart' ? 'flex h-full pb-2' : 'hidden lg:flex'}`}>
+      <div className={`w-full lg:w-[380px] bg-surface border-l border-cardAccent flex flex-col no-print shadow-xl overflow-hidden shrink-0 lg:rounded-none rounded-t-[28px] ${mobileStep === 3 ? 'flex h-full pb-2' : 'hidden lg:flex'}`}>
 
         {/* Cart Header */}
         <div className="p-3 border-b border-cardAccent flex items-center justify-between bg-background/20 shrink-0">
@@ -467,30 +591,46 @@ const POS: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation Tabs */}
-      <div className="lg:hidden absolute bottom-0 left-0 right-0 h-14 bg-surface border-t border-cardAccent flex justify-around items-center z-[40] no-print">
-        <button
-          onClick={() => setActiveMobileTab('menu')}
-          className={`flex-1 flex flex-col items-center justify-center h-full transition-all gap-0.5 ${activeMobileTab === 'menu' ? 'text-primary' : 'text-secondary'}`}
-        >
-          <LayoutGrid size={18} />
-          <span className="text-[10px] font-black">الأصناف</span>
-        </button>
-        
-        <button
-          onClick={() => setActiveMobileTab('cart')}
-          className={`flex-1 flex flex-col items-center justify-center h-full transition-all gap-0.5 relative ${activeMobileTab === 'cart' ? 'text-primary' : 'text-secondary'}`}
-        >
-          <div className="relative">
-            <ShoppingBag size={18} />
-            {cart.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 bg-primary text-background rounded-full text-[8px] flex items-center justify-center font-black animate-pulse">
-                {cart.reduce((s, i) => s + i.quantity, 0)}
-              </span>
-            )}
+      {/* Mobile Navigation Wizard Bottom Bar */}
+      <div className="lg:hidden absolute bottom-0 left-0 right-0 h-16 bg-surface border-t border-cardAccent flex items-center px-4 justify-between z-[40] no-print shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        {mobileStep === 1 && (
+          <div className="w-full text-center text-[10px] font-bold text-secondary">
+            الخطوة 1 من 3: اختيار نوع الخدمة والعميل
           </div>
-          <span className="text-[10px] font-black">السلة</span>
-        </button>
+        )}
+        
+        {mobileStep === 2 && (
+          <div className="w-full flex items-center justify-between gap-3">
+            <button
+              onClick={() => setMobileStep(1)}
+              className="flex items-center gap-1 px-4 py-2 bg-cardAccent/50 border border-cardAccent rounded-xl text-secondary text-xs font-black"
+            >
+              <span>نوع الخدمة</span>
+            </button>
+            <div className="flex-1" />
+            <button
+              disabled={cart.length === 0}
+              onClick={() => setMobileStep(3)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-background rounded-xl font-black text-xs disabled:opacity-30 shadow-lg"
+            >
+              <span>مراجعة الطلب والدفع ({cart.reduce((s, i) => s + i.quantity, 0)}) ⬅️</span>
+            </button>
+          </div>
+        )}
+
+        {mobileStep === 3 && (
+          <div className="w-full flex items-center justify-between">
+            <button
+              onClick={() => setMobileStep(2)}
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-cardAccent border border-cardAccent rounded-xl text-textPrimary text-xs font-black"
+            >
+              <span>➡️ تعديل الأصناف</span>
+            </button>
+            <div className="text-[10px] font-black text-secondary">
+              الإجمالي: <span className="text-primary text-sm font-black">{total.toFixed(2)} {currency}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ═══════════════════════════════════ MODALS ═══════════════════════════════════ */}

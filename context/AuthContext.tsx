@@ -260,7 +260,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!isAuthenticated || !user || !userRole) return;
 
     let sessionId = localStorage.getItem(CURRENT_SESSION_KEY);
-    const role = normalizeToEffectiveRole(currentEmployee?.role || userRole);
+    const role = normalizeToEffectiveRole(userRole);
     const nowIso = new Date().toISOString();
 
     if (!sessionId) {

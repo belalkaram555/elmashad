@@ -165,7 +165,7 @@ const TenantManagement: React.FC = () => {
                 </div>
             </div>
 
-            {/* Tenants Table */f}
+            {/* Tenants Table */}
             <div className="sa-glass-card" style={{ padding: '24px' }}>
                 <div className="sa-table-container">
                     <table className="sa-table">
