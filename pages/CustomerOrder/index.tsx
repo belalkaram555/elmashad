@@ -119,7 +119,7 @@ export const CustomerOrderPage: React.FC = () => {
     return menuItems.filter(item => {
       if (!item.available) return false;
       const matchesCat = selectedCategoryId === 'all' || item.categoryId === selectedCategoryId;
-      const matchesQuery = !searchQuery || 
+      const matchesQuery = !searchQuery ||
         item.nameAr.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.nameEn.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCat && matchesQuery;
@@ -152,7 +152,7 @@ export const CustomerOrderPage: React.FC = () => {
     };
 
     setCart(prev => {
-      const existingIdx = prev.findIndex(item => 
+      const existingIdx = prev.findIndex(item =>
         item.id === cartItem.id &&
         item.selectedVariant?.id === cartItem.selectedVariant?.id &&
         JSON.stringify(item.selectedAddons) === JSON.stringify(cartItem.selectedAddons) &&
@@ -267,7 +267,7 @@ export const CustomerOrderPage: React.FC = () => {
               <Badge variant="primary">
                 {language === 'ar' ? `طاولة ${tableNumber}` : `Table ${tableNumber}`}
               </Badge>
-              <button 
+              <button
                 onClick={() => setStep('info')}
                 className="text-secondary hover:text-primary p-1.5 rounded-lg transition-all"
               >
@@ -280,7 +280,7 @@ export const CustomerOrderPage: React.FC = () => {
         {/* Navigation Tabs */}
         {step !== 'info' && (
           <div className="flex px-4 gap-2 border-t border-cardAccent/50 bg-surface">
-            <button 
+            <button
               onClick={() => setActiveTab('menu')}
               className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 ${activeTab === 'menu' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
             >
@@ -288,7 +288,7 @@ export const CustomerOrderPage: React.FC = () => {
               <span>{language === 'ar' ? 'المنيو' : 'Menu'}</span>
             </button>
 
-            <button 
+            <button
               onClick={() => setActiveTab('cart')}
               className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 relative ${activeTab === 'cart' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
             >
@@ -302,7 +302,7 @@ export const CustomerOrderPage: React.FC = () => {
             </button>
 
             {activeOrder && (
-              <button 
+              <button
                 onClick={() => setActiveTab('status')}
                 className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 ${activeTab === 'status' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
               >
@@ -335,7 +335,7 @@ export const CustomerOrderPage: React.FC = () => {
           <div className="w-full bg-surface border border-cardAccent rounded-[32px] p-6 shadow-xl animate-in zoom-in-95 duration-500">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-black mb-2">
-                {language === 'ar' ? 'أهلاً بك في مقهانا' : 'Welcome to our Cafe'}
+                {language === 'ar' ? 'أهلاً بك في M4D CAFE' : 'Welcome to our Cafe'}
               </h2>
               <p className="text-xs text-secondary font-bold">
                 {language === 'ar' ? 'أدخل تفاصيلك واختَر الطاولة لبدء تصفح المنيو والطلب' : 'Enter details and select table to browse menu and order'}
@@ -348,7 +348,7 @@ export const CustomerOrderPage: React.FC = () => {
                   <User size={14} className="text-primary" />
                   <span>{language === 'ar' ? 'الاسم بالكامل' : 'Full Name'}</span>
                 </label>
-                <Input 
+                <Input
                   value={customerName}
                   onChange={e => setCustomerName(e.target.value)}
                   placeholder={language === 'ar' ? 'محمد أحمد' : 'John Doe'}
@@ -361,7 +361,7 @@ export const CustomerOrderPage: React.FC = () => {
                   <Phone size={14} className="text-primary" />
                   <span>{language === 'ar' ? 'رقم الهاتف' : 'Phone Number'}</span>
                 </label>
-                <Input 
+                <Input
                   type="tel"
                   value={customerPhone}
                   onChange={e => setCustomerPhone(e.target.value)}
@@ -376,7 +376,7 @@ export const CustomerOrderPage: React.FC = () => {
                   <span>{language === 'ar' ? 'اختر الطاولة التي تجلس عليها' : 'Select Your Table'}</span>
                 </label>
                 <div className="relative">
-                  <select 
+                  <select
                     value={tableNumber}
                     onChange={e => setTableNumber(e.target.value)}
                     required
@@ -411,7 +411,7 @@ export const CustomerOrderPage: React.FC = () => {
               {/* Search */}
               <div className="relative shrink-0">
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary" size={18} />
-                <Input 
+                <Input
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder={language === 'ar' ? 'ابحث عن صنف...' : 'Search items...'}
@@ -441,8 +441,8 @@ export const CustomerOrderPage: React.FC = () => {
               {/* Items Grid */}
               <div className="grid grid-cols-2 gap-3 pt-2">
                 {filteredItems.map(item => (
-                  <div 
-                    key={item.id} 
+                  <div
+                    key={item.id}
                     onClick={() => handleOpenSelection(item)}
                     className="bg-surface border border-cardAccent rounded-[24px] overflow-hidden flex flex-col cursor-pointer active:scale-95 transition-all group hover:border-primary/50 shadow-sm"
                   >
@@ -472,7 +472,7 @@ export const CustomerOrderPage: React.FC = () => {
               </div>
 
               {filteredItems.length === 0 && (
-                <EmptyState 
+                <EmptyState
                   icon={Coffee}
                   title={language === 'ar' ? 'لا يوجد أصناف' : 'No items found'}
                   description={language === 'ar' ? 'لم يتم العثور على أصناف تطابق بحثك' : 'No items match your criteria'}
@@ -487,7 +487,7 @@ export const CustomerOrderPage: React.FC = () => {
               <h2 className="text-lg font-black">{language === 'ar' ? 'سلة الطلبات' : 'Your Cart'}</h2>
 
               {cart.length === 0 ? (
-                <EmptyState 
+                <EmptyState
                   icon={ShoppingBag}
                   title={language === 'ar' ? 'السلة فارغة' : 'Cart is empty'}
                   description={language === 'ar' ? 'قم بإضافة أصناف من المنيو لإرسال طلبك' : 'Add items from menu to order'}
@@ -523,14 +523,14 @@ export const CustomerOrderPage: React.FC = () => {
                       </div>
 
                       <div className="flex items-center gap-2 bg-background border border-cardAccent rounded-2xl p-1 shrink-0">
-                        <button 
+                        <button
                           onClick={() => updateCartQty(index, -1)}
                           className="w-8 h-8 rounded-xl bg-surface flex items-center justify-center text-textPrimary active:scale-95 transition-all hover:bg-red-500/10 hover:text-red-500"
                         >
                           {item.quantity === 1 ? <Trash2 size={14} /> : <Minus size={14} />}
                         </button>
                         <span className="w-6 text-center text-xs font-black">{item.quantity}</span>
-                        <button 
+                        <button
                           onClick={() => updateCartQty(index, 1)}
                           className="w-8 h-8 rounded-xl bg-surface flex items-center justify-center text-textPrimary active:scale-95 transition-all hover:bg-primary/10 hover:text-primary"
                         >
@@ -553,11 +553,11 @@ export const CustomerOrderPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <Button 
-                    onClick={handleSubmitOrder} 
+                  <Button
+                    onClick={handleSubmitOrder}
                     disabled={isLoading}
-                    fullWidth 
-                    size="lg" 
+                    fullWidth
+                    size="lg"
                     className="mt-6 shadow-xl shadow-primary/20"
                   >
                     {isLoading ? (
@@ -664,8 +664,8 @@ export const CustomerOrderPage: React.FC = () => {
       )}
 
       {/* SELECTION MODAL (VARIANTS / ADDONS) */}
-      <Modal 
-        isOpen={selectionModal.show} 
+      <Modal
+        isOpen={selectionModal.show}
         onClose={() => setSelectionModal({ show: false })}
         title={selectionModal.product ? (language === 'ar' ? selectionModal.product.nameAr : selectionModal.product.nameEn) : ''}
       >
@@ -705,7 +705,7 @@ export const CustomerOrderPage: React.FC = () => {
                       <button
                         key={add.id}
                         onClick={() => {
-                          setSelectedAds(prev => 
+                          setSelectedAds(prev =>
                             isSel ? prev.filter(a => a.id !== add.id) : [...prev, add]
                           );
                         }}
@@ -725,7 +725,7 @@ export const CustomerOrderPage: React.FC = () => {
               <label className="block text-xs font-black text-secondary">
                 {language === 'ar' ? 'ملاحظات خاصة' : 'Special Notes'}
               </label>
-              <Input 
+              <Input
                 value={itemNote}
                 onChange={e => setItemNote(e.target.value)}
                 placeholder={language === 'ar' ? 'بدون سكر، حليب خالي الدسم...' : 'No sugar, skimmed milk...'}
