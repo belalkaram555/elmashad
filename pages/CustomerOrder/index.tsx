@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useData } from '../../context/DataContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { Button, Input, Badge, EmptyState } from '../../components/ui/Atoms';
@@ -56,6 +56,11 @@ export const CustomerOrderPage: React.FC = () => {
   const currency = language === 'ar' ? settings.currencyAr : settings.currencyEn;
 
   // Poll for existing session order
+  const activeOrderRef = useRef<CustomerOrder | null>(null);
+  useEffect(() => {
+    activeOrderRef.current = activeOrder;
+  }, [activeOrder]);
+
   useEffect(() => {
     if (!sessionToken) return;
 
@@ -63,17 +68,30 @@ export const CustomerOrderPage: React.FC = () => {
       try {
         const order = await api.customerOrders.getBySession(sessionToken);
         if (order) {
+          const isInitialLoad = !activeOrderRef.current;
+          const statusChangedToFinal = activeOrderRef.current && 
+            activeOrderRef.current.status !== order.status && 
+            (order.status === 'completed' || order.status === 'rejected');
+            
           setActiveOrder(order);
-          // If order is active/pending, load cart items into cart state so they can add more
-          setCart(order.items);
-          setStep('status');
-          setActiveTab('status');
-        } else {
-          // No active order found for session
-          if (step === 'status') {
-            setStep('menu');
-            setActiveTab('menu');
+
+          if (isInitialLoad) {
+            setCart(order.items);
+            setStep('status');
+            setActiveTab('status');
+          } else if (statusChangedToFinal) {
+            setStep('status');
+            setActiveTab('status');
           }
+        } else {
+          setActiveOrder(null);
+          setStep(prevStep => {
+            if (prevStep === 'status') {
+              setActiveTab('menu');
+              return 'menu';
+            }
+            return prevStep;
+          });
         }
       } catch (err) {
         console.error('Error polling customer order:', err);

@@ -89,10 +89,11 @@ const POS: React.FC = () => {
   };
 
   const filteredCustomers = useMemo(() => {
-    if (!customerSearch) return customers.slice(0, 8);
+    if (!customerSearch) return customers.slice(0, 50);
+    const q = customerSearch.toLowerCase().trim();
     return customers.filter(c =>
-      c.name.includes(customerSearch) || (c.phone || '').includes(customerSearch)
-    ).slice(0, 8);
+      c.name.toLowerCase().includes(q) || (c.phone || '').toLowerCase().includes(q)
+    ).slice(0, 50);
   }, [customers, customerSearch]);
 
   useEffect(() => {
@@ -103,6 +104,36 @@ const POS: React.FC = () => {
       setShowCustomerDropdown(true);
     }
   }, [orderType]);
+
+  useEffect(() => {
+    const convertedStr = localStorage.getItem('convertedCustomerOrder');
+    if (convertedStr) {
+      try {
+        const orderInfo = JSON.parse(convertedStr);
+        if (orderInfo) {
+          setOrderType('customer');
+          const custPhone = orderInfo.customerPhone || '';
+          const custName = orderInfo.customerName || 'عميل طاولة';
+          let existingCust = customers.find(c => (custPhone && c.phone === custPhone) || c.name.toLowerCase() === custName.toLowerCase());
+          
+          if (!existingCust) {
+            existingCust = {
+              id: `c_${Date.now()}`,
+              name: custName,
+              phone: custPhone,
+              balance: 0
+            };
+            addCustomer(existingCust);
+          }
+          
+          setSelectedCustomerId(existingCust.id);
+          setSelectedCustomerName(existingCust.name);
+          setCustomerSearch(existingCust.name);
+        }
+      } catch(e) {}
+      localStorage.removeItem('convertedCustomerOrder');
+    }
+  }, [customers, addCustomer]);
 
   const handleOpenShift = () => {
     if (shiftStartBalance < 0) { addToast('رصيد البداية لا يمكن أن يكون بالسالب', 'error'); return; }
@@ -231,8 +262,24 @@ const POS: React.FC = () => {
         addToCart(i, i.selectedVariant || null, i.selectedAddons || []);
       });
       setOrderType('customer');
-      setSelectedCustomerName(order.customerName);
-      setCustomerSearch(order.customerName);
+      
+      const custPhone = order.customerPhone || order.phone || '';
+      const custName = order.customerName || 'عميل طاولة';
+      let existingCust = customers.find(c => (custPhone && c.phone === custPhone) || c.name.toLowerCase() === custName.toLowerCase());
+      
+      if (!existingCust) {
+        existingCust = {
+          id: `c_${Date.now()}`,
+          name: custName,
+          phone: custPhone,
+          balance: 0
+        };
+        addCustomer(existingCust);
+      }
+      
+      setSelectedCustomerId(existingCust.id);
+      setSelectedCustomerName(existingCust.name);
+      setCustomerSearch(existingCust.name);
       
       // Update status to completed
       await api.customerOrders.update(order.id, { status: 'completed' });

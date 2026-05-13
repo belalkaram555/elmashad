@@ -94,6 +94,10 @@ const Tables: React.FC = () => {
       addToast(language === 'ar' ? 'تم تحويل الطلب إلى شاشة البيع بنجاح' : 'Order converted to cart', 'success');
       refreshCustomerOrders();
       localStorage.setItem('selectedTableId', tableId);
+      localStorage.setItem('convertedCustomerOrder', JSON.stringify({
+        customerName: order.customerName,
+        customerPhone: order.customerPhone || order.phone
+      }));
       navigate('/pos');
     } catch (err: any) {
       addToast(err.message || 'Error converting order', 'error');

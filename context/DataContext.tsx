@@ -465,7 +465,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setNextOrderNumber(prev => {
       const next = prev + 1;
       void idbSetMeta('nextOrderNumber', next);
-      if (isOnline()) void api.counters.incrementOrderNumber();
+      if (isOnline()) {
+        api.counters.incrementOrderNumber().then(res => {
+          if (res && res.value) {
+            setNextOrderNumber(res.value);
+            void idbSetMeta('nextOrderNumber', res.value);
+          }
+        }).catch(() => {});
+      }
       return next;
     });
     if (activeShift) {
