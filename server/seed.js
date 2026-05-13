@@ -153,8 +153,139 @@ async function seedDatabase() {
       [d.id, d.name, d.type, d.hourlyRate, d.status]);
   }
 
+  // Authentic Orders for realistic category distribution
+  const now = new Date();
+  const formatISO = (daysAgo, hour) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - daysAgo);
+    d.setHours(hour, 30, 0, 0);
+    return d.toISOString();
+  };
+
+  const sampleOrders = [
+    {
+      id: 'ORD-1001',
+      items: [
+        { id: 'menu-001', nameAr: 'قهوة عربية', nameEn: 'Arabic Coffee', basePrice: 25, quantity: 2, totalItemPrice: 25, categoryId: 'cat-001' },
+        { id: 'menu-012', nameAr: 'كنافة', nameEn: 'Kunafa', basePrice: 35, quantity: 1, totalItemPrice: 35, categoryId: 'cat-005' }
+      ],
+      subtotal: 85, total: 85, paymentMethod: 'cash', type: 'takeaway', status: 'completed',
+      createdAt: formatISO(0, 9)
+    },
+    {
+      id: 'ORD-1002',
+      items: [
+        { id: 'menu-002', nameAr: 'لاتيه', nameEn: 'Latte', basePrice: 35, quantity: 3, totalItemPrice: 35, categoryId: 'cat-001' },
+        { id: 'menu-003', nameAr: 'كابتشينو', nameEn: 'Cappuccino', basePrice: 32, quantity: 1, totalItemPrice: 32, categoryId: 'cat-001' },
+        { id: 'menu-007', nameAr: 'ساندويتش دجاج', nameEn: 'Chicken Sandwich', basePrice: 45, quantity: 2, totalItemPrice: 45, categoryId: 'cat-003' }
+      ],
+      subtotal: 227, total: 227, paymentMethod: 'card', type: 'dine-in', status: 'completed',
+      createdAt: formatISO(0, 13)
+    },
+    {
+      id: 'ORD-1003',
+      items: [
+        { id: 'menu-008', nameAr: 'برجر لحم', nameEn: 'Beef Burger', basePrice: 65, quantity: 2, totalItemPrice: 65, categoryId: 'cat-003' },
+        { id: 'menu-006', nameAr: 'سموذي فراولة', nameEn: 'Strawberry Smoothie', basePrice: 38, quantity: 2, totalItemPrice: 38, categoryId: 'cat-002' },
+        { id: 'menu-011', nameAr: 'سلطة خضراء', nameEn: 'Green Salad', basePrice: 25, quantity: 1, totalItemPrice: 25, categoryId: 'cat-006' }
+      ],
+      subtotal: 231, total: 231, paymentMethod: 'cash', type: 'dine-in', status: 'completed',
+      createdAt: formatISO(1, 14)
+    },
+    {
+      id: 'ORD-1004',
+      items: [
+        { id: 'menu-009', nameAr: 'مشاوي مشكلة', nameEn: 'Mixed Grill', basePrice: 150, quantity: 2, totalItemPrice: 150, categoryId: 'cat-004' },
+        { id: 'menu-010', nameAr: 'فتة دجاج', nameEn: 'Chicken Fattah', basePrice: 85, quantity: 1, totalItemPrice: 85, categoryId: 'cat-004' },
+        { id: 'menu-005', nameAr: 'عصير برتقال', nameEn: 'Orange Juice', basePrice: 28, quantity: 3, totalItemPrice: 28, categoryId: 'cat-002' }
+      ],
+      subtotal: 469, total: 469, paymentMethod: 'instapay', type: 'dine-in', status: 'completed',
+      createdAt: formatISO(1, 19)
+    },
+    {
+      id: 'ORD-1005',
+      items: [
+        { id: 'menu-001', nameAr: 'قهوة عربية', nameEn: 'Arabic Coffee', basePrice: 25, quantity: 4, totalItemPrice: 25, categoryId: 'cat-001' },
+        { id: 'menu-012', nameAr: 'كنافة', nameEn: 'Kunafa', basePrice: 35, quantity: 2, totalItemPrice: 35, categoryId: 'cat-005' }
+      ],
+      subtotal: 170, total: 170, paymentMethod: 'cash', type: 'takeaway', status: 'completed',
+      createdAt: formatISO(2, 10)
+    },
+    {
+      id: 'ORD-1006',
+      items: [
+        { id: 'menu-007', nameAr: 'ساندويتش دجاج', nameEn: 'Chicken Sandwich', basePrice: 45, quantity: 3, totalItemPrice: 45, categoryId: 'cat-003' },
+        { id: 'menu-004', nameAr: 'شاي بالحليب', nameEn: 'Milk Tea', basePrice: 18, quantity: 3, totalItemPrice: 18, categoryId: 'cat-001' }
+      ],
+      subtotal: 189, total: 189, paymentMethod: 'cash', type: 'takeaway', status: 'completed',
+      createdAt: formatISO(2, 12)
+    },
+    {
+      id: 'ORD-1007',
+      items: [
+        { id: 'menu-002', nameAr: 'لاتيه', nameEn: 'Latte', basePrice: 35, quantity: 2, totalItemPrice: 35, categoryId: 'cat-001' },
+        { id: 'menu-012', nameAr: 'كنافة', nameEn: 'Kunafa', basePrice: 35, quantity: 1, totalItemPrice: 35, categoryId: 'cat-005' }
+      ],
+      subtotal: 105, total: 105, paymentMethod: 'card', type: 'dine-in', status: 'completed',
+      createdAt: formatISO(3, 16)
+    },
+    {
+      id: 'ORD-1008',
+      items: [
+        { id: 'menu-009', nameAr: 'مشاوي مشكلة', nameEn: 'Mixed Grill', basePrice: 150, quantity: 1, totalItemPrice: 150, categoryId: 'cat-004' },
+        { id: 'menu-011', nameAr: 'سلطة خضراء', nameEn: 'Green Salad', basePrice: 25, quantity: 2, totalItemPrice: 25, categoryId: 'cat-006' },
+        { id: 'menu-005', nameAr: 'عصير برتقال', nameEn: 'Orange Juice', basePrice: 28, quantity: 2, totalItemPrice: 28, categoryId: 'cat-002' }
+      ],
+      subtotal: 256, total: 256, paymentMethod: 'cash', type: 'dine-in', status: 'completed',
+      createdAt: formatISO(3, 20)
+    },
+    {
+      id: 'ORD-1009',
+      items: [
+        { id: 'menu-003', nameAr: 'كابتشينو', nameEn: 'Cappuccino', basePrice: 32, quantity: 5, totalItemPrice: 32, categoryId: 'cat-001' }
+      ],
+      subtotal: 160, total: 160, paymentMethod: 'instapay', type: 'takeaway', status: 'completed',
+      createdAt: formatISO(4, 8)
+    },
+    {
+      id: 'ORD-1010',
+      items: [
+        { id: 'menu-008', nameAr: 'برجر لحم', nameEn: 'Beef Burger', basePrice: 65, quantity: 3, totalItemPrice: 65, categoryId: 'cat-003' },
+        { id: 'menu-006', nameAr: 'سموذي فراولة', nameEn: 'Strawberry Smoothie', basePrice: 38, quantity: 3, totalItemPrice: 38, categoryId: 'cat-002' }
+      ],
+      subtotal: 309, total: 309, paymentMethod: 'card', type: 'dine-in', status: 'completed',
+      createdAt: formatISO(4, 15)
+    },
+    {
+      id: 'ORD-1011',
+      items: [
+        { id: 'menu-010', nameAr: 'فتة دجاج', nameEn: 'Chicken Fattah', basePrice: 85, quantity: 2, totalItemPrice: 85, categoryId: 'cat-004' },
+        { id: 'menu-002', nameAr: 'لاتيه', nameEn: 'Latte', basePrice: 35, quantity: 2, totalItemPrice: 35, categoryId: 'cat-001' }
+      ],
+      subtotal: 240, total: 240, paymentMethod: 'cash', type: 'takeaway', status: 'completed',
+      createdAt: formatISO(5, 14)
+    },
+    {
+      id: 'ORD-1012',
+      items: [
+        { id: 'menu-001', nameAr: 'قهوة عربية', nameEn: 'Arabic Coffee', basePrice: 25, quantity: 3, totalItemPrice: 25, categoryId: 'cat-001' },
+        { id: 'menu-007', nameAr: 'ساندويتش دجاج', nameEn: 'Chicken Sandwich', basePrice: 45, quantity: 2, totalItemPrice: 45, categoryId: 'cat-003' },
+        { id: 'menu-012', nameAr: 'كنافة', nameEn: 'Kunafa', basePrice: 35, quantity: 2, totalItemPrice: 35, categoryId: 'cat-005' }
+      ],
+      subtotal: 235, total: 235, paymentMethod: 'card', type: 'dine-in', status: 'completed',
+      createdAt: formatISO(6, 17)
+    }
+  ];
+
+  for (const o of sampleOrders) {
+    await query(
+      'INSERT INTO orders (id, items, subtotal, total, payment_method, type, status, created_at, completed_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$8) ON CONFLICT DO NOTHING',
+      [o.id, JSON.stringify(o.items), o.subtotal, o.total, o.paymentMethod, o.type, o.status, o.createdAt]
+    );
+  }
+
   // Counter
-  await query('INSERT INTO app_counters (key, value) VALUES ($1, $2) ON CONFLICT DO NOTHING', ['next_order_number', 1]);
+  await query('INSERT INTO app_counters (key, value) VALUES ($1, $2) ON CONFLICT DO NOTHING', ['next_order_number', 1013]);
 
   console.log('✅ Seed completed');
 }

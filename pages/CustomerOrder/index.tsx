@@ -244,37 +244,76 @@ export const CustomerOrderPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-background text-textPrimary flex flex-col font-sans select-none overflow-y-auto overflow-x-hidden">
-      {/* Header */}
-      <header className="bg-surface border-b border-cardAccent p-4 sticky top-0 z-40 flex items-center justify-between shadow-sm shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black">
-            <Coffee size={24} />
+    <div className="w-full min-h-screen bg-background text-textPrimary font-sans select-none pb-32">
+      {/* Header & Sticky Tabs Combined Container */}
+      <div className="sticky top-0 z-40 bg-surface border-b border-cardAccent shadow-sm">
+        <header className="p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black">
+              <Coffee size={24} />
+            </div>
+            <div>
+              <h1 className="text-lg font-black text-textPrimary">
+                {language === 'ar' ? settings.restaurantNameAr : settings.restaurantNameEn}
+              </h1>
+              <p className="text-[10px] font-bold text-secondary">
+                {language === 'ar' ? 'خدمة الطلب من الطاولة' : 'Table Ordering Service'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-lg font-black text-textPrimary">
-              {language === 'ar' ? settings.restaurantNameAr : settings.restaurantNameEn}
-            </h1>
-            <p className="text-[10px] font-bold text-secondary">
-              {language === 'ar' ? 'خدمة الطلب من الطاولة' : 'Table Ordering Service'}
-            </p>
-          </div>
-        </div>
 
+          {step !== 'info' && (
+            <div className="flex items-center gap-2">
+              <Badge variant="primary">
+                {language === 'ar' ? `طاولة ${tableNumber}` : `Table ${tableNumber}`}
+              </Badge>
+              <button 
+                onClick={() => setStep('info')}
+                className="text-secondary hover:text-primary p-1.5 rounded-lg transition-all"
+              >
+                <RefreshCw size={16} />
+              </button>
+            </div>
+          )}
+        </header>
+
+        {/* Navigation Tabs */}
         {step !== 'info' && (
-          <div className="flex items-center gap-2">
-            <Badge variant="primary">
-              {language === 'ar' ? `طاولة ${tableNumber}` : `Table ${tableNumber}`}
-            </Badge>
+          <div className="flex px-4 gap-2 border-t border-cardAccent/50 bg-surface">
             <button 
-              onClick={() => setStep('info')}
-              className="text-secondary hover:text-primary p-1.5 rounded-lg transition-all"
+              onClick={() => setActiveTab('menu')}
+              className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 ${activeTab === 'menu' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
             >
-              <RefreshCw size={16} />
+              <Coffee size={16} />
+              <span>{language === 'ar' ? 'المنيو' : 'Menu'}</span>
             </button>
+
+            <button 
+              onClick={() => setActiveTab('cart')}
+              className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 relative ${activeTab === 'cart' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
+            >
+              <ShoppingBag size={16} />
+              <span>{language === 'ar' ? 'سلة الطلبات' : 'Cart'}</span>
+              {cart.length > 0 && (
+                <span className="absolute top-2 right-4 w-5 h-5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-black animate-pulse">
+                  {cart.reduce((sum, i) => sum + i.quantity, 0)}
+                </span>
+              )}
+            </button>
+
+            {activeOrder && (
+              <button 
+                onClick={() => setActiveTab('status')}
+                className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 ${activeTab === 'status' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
+              >
+                <Clock size={16} />
+                <span>{language === 'ar' ? 'حالة الطلب' : 'Order Status'}</span>
+                <span className={`w-2 h-2 rounded-full ${activeOrder.status === 'pending' ? 'bg-amber-500 animate-ping' : activeOrder.status === 'accepted' ? 'bg-accentGreen animate-pulse' : 'bg-gray-500'}`} />
+              </button>
+            )}
           </div>
         )}
-      </header>
+      </div>
 
       {errorMessage && (
         <div className="m-4 p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl flex items-center gap-3 text-xs font-bold animate-in fade-in shrink-0">
@@ -292,8 +331,8 @@ export const CustomerOrderPage: React.FC = () => {
 
       {/* STEP 1: INFO FORM */}
       {step === 'info' && (
-        <main className="flex-1 flex items-center justify-center p-4 py-8 overflow-y-auto">
-          <div className="w-full max-w-md bg-surface border border-cardAccent rounded-[32px] p-6 shadow-xl animate-in zoom-in-95 duration-500">
+        <main className="p-4 py-8 max-w-md mx-auto">
+          <div className="w-full bg-surface border border-cardAccent rounded-[32px] p-6 shadow-xl animate-in zoom-in-95 duration-500">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-black mb-2">
                 {language === 'ar' ? 'أهلاً بك في مقهانا' : 'Welcome to our Cafe'}
@@ -365,42 +404,7 @@ export const CustomerOrderPage: React.FC = () => {
 
       {/* STEP 2: MENU & CART & STATUS */}
       {step !== 'info' && (
-        <div className="flex-1 flex flex-col pb-28 overflow-y-auto">
-          {/* Navigation Tabs */}
-          <div className="flex border-b border-cardAccent bg-surface px-4 gap-2 shrink-0 sticky top-[73px] z-30 shadow-sm">
-            <button 
-              onClick={() => setActiveTab('menu')}
-              className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 ${activeTab === 'menu' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
-            >
-              <Coffee size={16} />
-              <span>{language === 'ar' ? 'المنيو' : 'Menu'}</span>
-            </button>
-
-            <button 
-              onClick={() => setActiveTab('cart')}
-              className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 relative ${activeTab === 'cart' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
-            >
-              <ShoppingBag size={16} />
-              <span>{language === 'ar' ? 'سلة الطلبات' : 'Cart'}</span>
-              {cart.length > 0 && (
-                <span className="absolute top-2 right-4 w-5 h-5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-black animate-pulse">
-                  {cart.reduce((sum, i) => sum + i.quantity, 0)}
-                </span>
-              )}
-            </button>
-
-            {activeOrder && (
-              <button 
-                onClick={() => setActiveTab('status')}
-                className={`flex-1 py-4 text-xs font-black border-b-2 transition-all flex items-center justify-center gap-2 ${activeTab === 'status' ? 'border-primary text-primary' : 'border-transparent text-secondary hover:text-textPrimary'}`}
-              >
-                <Clock size={16} />
-                <span>{language === 'ar' ? 'حالة الطلب' : 'Order Status'}</span>
-                <span className={`w-2 h-2 rounded-full ${activeOrder.status === 'pending' ? 'bg-amber-500 animate-ping' : activeOrder.status === 'accepted' ? 'bg-accentGreen animate-pulse' : 'bg-gray-500'}`} />
-              </button>
-            )}
-          </div>
-
+        <div className="max-w-4xl mx-auto w-full pb-12">
           {/* TAB: MENU */}
           {activeTab === 'menu' && (
             <div className="p-4 space-y-4 flex-1 flex flex-col animate-in fade-in duration-300">
