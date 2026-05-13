@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { printTaxInvoiceA4, printThermalReceipt } from '../utils/printService';
 import { generateZatcaBase64 } from '../utils/zatca';
+import { api } from '../services/api';
 
 const CATEGORY_COLORS = [
   '#FF9F43', '#28C76F', '#374151', '#EA5455',
@@ -27,7 +28,7 @@ const CATEGORY_COLORS = [
 ];
 
 const POS: React.FC = () => {
-  const { menuItems, addOrder, categories, settings, nextOrderNumber, customers, addCustomer, activeShift, openShift } = useData();
+  const { menuItems, addOrder, categories, settings, nextOrderNumber, customers, addCustomer, activeShift, openShift, customerOrders, refreshCustomerOrders } = useData();
   const { t, language } = useLanguage();
   const { user, userRole } = useAuth();
   const { addToast } = useToastStore();
@@ -42,6 +43,15 @@ const POS: React.FC = () => {
   const [cashReceived, setCashReceived] = useState<string>('');
   const [isCompactView, setIsCompactView] = useState(settings.defaultCompactView || false);
   const [mobileStep, setMobileStep] = useState<1 | 2 | 3>(1);
+
+  const [showCustomerOrdersModal, setShowCustomerOrdersModal] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshCustomerOrders();
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [refreshCustomerOrders]);
 
   // Customer
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
@@ -193,6 +203,49 @@ const POS: React.FC = () => {
     else printThermalReceipt({ order, settings, currency, language, qrValue });
     resetPOS();
   };
+
+  const handleAcceptCustomerOrder = async (id: string) => {
+    try {
+      await api.customerOrders.update(id, { status: 'accepted' });
+      addToast(language === 'ar' ? 'تم قبول الطلب وجاري إعداده' : 'Order accepted', 'success');
+      refreshCustomerOrders();
+    } catch (err: any) {
+      addToast(err.message || 'Error accepting order', 'error');
+    }
+  };
+
+  const handleRejectCustomerOrder = async (id: string) => {
+    try {
+      await api.customerOrders.update(id, { status: 'rejected' });
+      addToast(language === 'ar' ? 'تم رفض الطلب' : 'Order rejected', 'info');
+      refreshCustomerOrders();
+    } catch (err: any) {
+      addToast(err.message || 'Error rejecting order', 'error');
+    }
+  };
+
+  const handleConvertCustomerOrder = async (order: any) => {
+    try {
+      clearCart();
+      order.items.forEach((i: any) => {
+        addToCart(i, i.selectedVariant || null, i.selectedAddons || []);
+      });
+      setOrderType('customer');
+      setSelectedCustomerName(order.customerName);
+      setCustomerSearch(order.customerName);
+      
+      // Update status to completed
+      await api.customerOrders.update(order.id, { status: 'completed' });
+      setShowCustomerOrdersModal(false);
+      addToast(language === 'ar' ? 'تم تحويل الطلب للفاتورة الحالية' : 'Order converted to cart', 'success');
+      refreshCustomerOrders();
+    } catch (err: any) {
+      addToast(err.message || 'Error converting order', 'error');
+    }
+  };
+
+  const pendingOrders = useMemo(() => customerOrders.filter(o => o.status === 'pending'), [customerOrders]);
+  const acceptedOrders = useMemo(() => customerOrders.filter(o => o.status === 'accepted'), [customerOrders]);
 
   const filteredItems = useMemo(() =>
     menuItems.filter(item => selectedCategoryId === 'all' || item.categoryId === selectedCategoryId),
@@ -413,6 +466,19 @@ const POS: React.FC = () => {
           </div>
           {/* Hold Button */}
           <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setShowCustomerOrdersModal(true)}
+              className={`relative p-1.5 bg-background border border-cardAccent rounded-lg transition-all flex items-center gap-1 px-2 ${pendingOrders.length > 0 ? 'text-amber-500 border-amber-500/30 animate-pulse' : 'text-secondary hover:text-primary'}`}
+              title="طلبات الطاولات (QR)"
+            >
+              <Smartphone size={14} />
+              {pendingOrders.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 text-white rounded-full text-[8px] flex items-center justify-center font-black animate-ping" />
+              )}
+              {(pendingOrders.length > 0 || acceptedOrders.length > 0) && (
+                <span className="text-[10px] font-black px-1">{pendingOrders.length + acceptedOrders.length}</span>
+              )}
+            </button>
             <button
               onClick={handleHold}
               disabled={cart.length === 0}
@@ -853,6 +919,168 @@ const POS: React.FC = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button fullWidth onClick={handleOpenShift}>تأكيد البدء</Button>
+          </Modal.Footer>
+        </Modal>
+      )}
+
+      {/* Customer Orders Modal */}
+      {showCustomerOrdersModal && (
+        <Modal isOpen onClose={() => setShowCustomerOrdersModal(false)}>
+          <Modal.Header title={language === 'ar' ? 'طلبات الطاولات (QR Code)' : 'Table Orders (QR)'} />
+          <Modal.Body>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+              {pendingOrders.length === 0 && acceptedOrders.length === 0 ? (
+                <div className="text-center py-12 text-secondary">
+                  <Smartphone size={40} className="mx-auto mb-3 opacity-30 animate-bounce" />
+                  <p className="font-bold text-sm">{language === 'ar' ? 'لا توجد طلبات طاولات حالياً' : 'No incoming table orders'}</p>
+                </div>
+              ) : (
+                <>
+                  {pendingOrders.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-black text-amber-500 border-b border-amber-500/20 pb-1 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                        {language === 'ar' ? 'طلبات جديدة (تحتاج موافقة)' : 'New Orders (Pending)'}
+                      </h4>
+                      {pendingOrders.map(order => (
+                        <div key={order.id} className="bg-background rounded-2xl border-2 border-amber-500/40 p-4 space-y-3 shadow-md">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="px-3 py-1 bg-amber-500 text-white rounded-xl font-black text-xs shadow-sm">
+                                طاولة {order.tableNumber}
+                              </span>
+                              <div>
+                                <p className="text-xs font-black text-textPrimary">{order.customerName}</p>
+                                <p className="text-[10px] text-secondary">{order.customerPhone}</p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-secondary font-bold bg-surface px-2 py-1 rounded-lg border border-cardAccent">
+                              {new Date(order.createdAt).toLocaleTimeString()}
+                            </span>
+                          </div>
+
+                          <div className="bg-surface rounded-xl p-3 divide-y divide-cardAccent/40 space-y-2">
+                            {order.items.map((item: any, idx: number) => (
+                              <div key={idx} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
+                                <div>
+                                  <p className="font-bold text-textPrimary">{item.quantity}x {language === 'ar' ? item.nameAr : item.nameEn}</p>
+                                  {item.selectedVariant && (
+                                    <p className="text-[10px] text-accentBlue font-bold">{language === 'ar' ? item.selectedVariant.nameAr : item.selectedVariant.nameEn}</p>
+                                  )}
+                                  {item.selectedAddons && item.selectedAddons.map((ad: any, aIdx: number) => (
+                                    <p key={aIdx} className="text-[10px] text-secondary">+ {language === 'ar' ? ad.nameAr : ad.nameEn}</p>
+                                  ))}
+                                  {item.note && <p className="text-[10px] text-amber-500 font-bold">ملاحظة: {item.note}</p>}
+                                </div>
+                                <span className="font-black text-primary">{(item.total || 0).toFixed(2)} {currency}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="flex items-center justify-between pt-1">
+                            <span className="text-sm font-black text-textPrimary">
+                              {language === 'ar' ? 'الإجمالي:' : 'Total:'} <span className="text-primary">{(order.totalAmount || 0).toFixed(2)} {currency}</span>
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-cardAccent">
+                            <button
+                              onClick={() => handleAcceptCustomerOrder(order.id)}
+                              className="py-2.5 bg-accentGreen hover:bg-accentGreen/90 text-background rounded-xl font-black text-xs flex items-center justify-center gap-1 shadow-sm transition-all"
+                            >
+                              <CheckCircle2 size={14} /> {language === 'ar' ? 'قبول وإعداد' : 'Accept'}
+                            </button>
+                            <button
+                              onClick={() => handleConvertCustomerOrder(order)}
+                              className="py-2.5 bg-primary hover:bg-primary/90 text-background rounded-xl font-black text-xs flex items-center justify-center gap-1 shadow-sm transition-all"
+                            >
+                              <ShoppingBag size={14} /> {language === 'ar' ? 'تحويل للفاتورة' : 'Invoice'}
+                            </button>
+                            <button
+                              onClick={() => handleRejectCustomerOrder(order.id)}
+                              className="py-2.5 bg-cardAccent hover:bg-red-500/20 hover:text-red-400 text-secondary rounded-xl font-black text-xs flex items-center justify-center gap-1 transition-all"
+                            >
+                              <X size={14} /> {language === 'ar' ? 'رفض' : 'Reject'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {acceptedOrders.length > 0 && (
+                    <div className="space-y-3 pt-3">
+                      <h4 className="text-xs font-black text-accentGreen border-b border-accentGreen/20 pb-1 flex items-center gap-1.5">
+                        <CheckCircle2 size={12} className="text-accentGreen" />
+                        {language === 'ar' ? 'طلبات قيد التحضير (مقبولة)' : 'Accepted Orders (Preparing)'}
+                      </h4>
+                      {acceptedOrders.map(order => (
+                        <div key={order.id} className="bg-background rounded-2xl border border-accentGreen/30 p-4 space-y-3 shadow-sm opacity-90">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="px-3 py-1 bg-accentGreen text-background rounded-xl font-black text-xs shadow-sm">
+                                طاولة {order.tableNumber}
+                              </span>
+                              <div>
+                                <p className="text-xs font-black text-textPrimary">{order.customerName}</p>
+                                <p className="text-[10px] text-secondary">{order.customerPhone}</p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-accentGreen font-bold bg-accentGreen/10 px-2 py-0.5 rounded-md">
+                              {language === 'ar' ? 'قيد التحضير' : 'Preparing'}
+                            </span>
+                          </div>
+
+                          <div className="bg-surface rounded-xl p-3 divide-y divide-cardAccent/40 space-y-2">
+                            {order.items.map((item: any, idx: number) => (
+                              <div key={idx} className="pt-2 first:pt-0 flex items-center justify-between text-xs">
+                                <div>
+                                  <p className="font-bold text-textPrimary">{item.quantity}x {language === 'ar' ? item.nameAr : item.nameEn}</p>
+                                  {item.selectedVariant && (
+                                    <p className="text-[10px] text-accentBlue font-bold">{language === 'ar' ? item.selectedVariant.nameAr : item.selectedVariant.nameEn}</p>
+                                  )}
+                                  {item.selectedAddons && item.selectedAddons.map((ad: any, aIdx: number) => (
+                                    <p key={aIdx} className="text-[10px] text-secondary">+ {language === 'ar' ? ad.nameAr : ad.nameEn}</p>
+                                  ))}
+                                  {item.note && <p className="text-[10px] text-amber-500 font-bold">ملاحظة: {item.note}</p>}
+                                </div>
+                                <span className="font-black text-primary">{(item.total || 0).toFixed(2)} {currency}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className="flex items-center justify-between pt-1">
+                            <span className="text-sm font-black text-textPrimary">
+                              {language === 'ar' ? 'الإجمالي:' : 'Total:'} <span className="text-primary">{(order.totalAmount || 0).toFixed(2)} {currency}</span>
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-cardAccent">
+                            <button
+                              onClick={() => handleConvertCustomerOrder(order)}
+                              className="py-2.5 bg-primary hover:bg-primary/90 text-background rounded-xl font-black text-xs flex items-center justify-center gap-1 shadow-sm transition-all"
+                            >
+                              <ShoppingBag size={14} /> {language === 'ar' ? 'تحويل للفاتورة والدفع' : 'Convert to Invoice'}
+                            </button>
+                            <button
+                              onClick={() => handleRejectCustomerOrder(order.id)}
+                              className="py-2.5 bg-cardAccent hover:bg-red-500/20 hover:text-red-400 text-secondary rounded-xl font-black text-xs flex items-center justify-center gap-1 transition-all"
+                            >
+                              <X size={14} /> {language === 'ar' ? 'إلغاء الطلب' : 'Cancel'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button fullWidth variant="secondary" onClick={() => setShowCustomerOrdersModal(false)}>
+              {language === 'ar' ? 'إغلاق' : 'Close'}
+            </Button>
           </Modal.Footer>
         </Modal>
       )}

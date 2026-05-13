@@ -30,6 +30,7 @@ app.use('/api/tables', require('./routes/tables'));
 app.use('/api/gaming', require('./routes/gaming'));
 app.use('/api/counters', require('./routes/counters'));
 app.use('/api/sync', require('./routes/syncRoute'));
+app.use('/api/customer-orders', require('./routes/customerOrders'));
 
 // ── Health ───────────────────────────────────────────────
 app.get('/api/health', async (_req, res) => {

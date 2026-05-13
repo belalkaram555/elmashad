@@ -2,7 +2,7 @@ import {
   Category, MenuItem, Order, InventoryItem, Warehouse, StockMovement,
   Customer, Supplier, Purchase, TreasuryTransaction, Employee,
   AttendanceRecord, Loan, Shift, AppSettings, Notification, Table,
-  GamingDevice, GamingSession
+  GamingDevice, GamingSession, CustomerOrder
 } from '../types';
 
 const BASE = '/api';
@@ -168,6 +168,14 @@ export const api = {
   sync: {
     pull: (since: string) => get<Record<string, unknown[]>>(`/sync/pull?since=${encodeURIComponent(since)}`),
     push: (queue: SyncQueueItem[]) => post<{ processed: number }>('/sync/push', { queue }),
+  },
+
+  customerOrders: {
+    list: () => get<CustomerOrder[]>('/customer-orders'),
+    getBySession: (token: string) => get<CustomerOrder | null>(`/customer-orders/session/${token}`),
+    create: (d: Partial<CustomerOrder>) => post<CustomerOrder>('/customer-orders', d),
+    update: (id: string, d: Partial<CustomerOrder>) => put<CustomerOrder>(`/customer-orders/${id}`, d),
+    remove: (id: string) => del<void>(`/customer-orders/${id}`),
   },
 };
 

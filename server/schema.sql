@@ -235,3 +235,18 @@ CREATE TABLE IF NOT EXISTS app_counters (
   value INTEGER DEFAULT 1,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS customer_orders (
+  id VARCHAR(100) PRIMARY KEY,
+  customer_name VARCHAR(255),
+  customer_phone VARCHAR(50),
+  table_number VARCHAR(50),
+  items JSONB DEFAULT '[]',
+  subtotal DECIMAL(12,2) DEFAULT 0,
+  tax DECIMAL(12,2) DEFAULT 0,
+  total DECIMAL(12,2) DEFAULT 0,
+  status VARCHAR(30) DEFAULT 'pending',
+  session_token VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);

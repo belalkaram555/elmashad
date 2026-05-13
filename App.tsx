@@ -30,6 +30,8 @@ import Reports from './pages/Reports';
 import PlayStation from './pages/Gaming/PlayStation';
 import Billiard from './pages/Gaming/Billiard';
 import AuditLogs from './pages/admin/AuditLogs';
+import { CustomerOrderPage } from './pages/CustomerOrder';
+import Tables from './pages/Tables';
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
@@ -142,6 +144,7 @@ const App: React.FC = () => {
             <Router>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/qr" element={<CustomerOrderPage />} />
 
                 <Route element={<ProtectedRoute />}>
                   <Route path="/" element={<Layout />}>
@@ -154,6 +157,7 @@ const App: React.FC = () => {
                     {/* POS */}
                     <Route element={<ProtectedRoute allowedRoles={['admin', 'cashier']} />}>
                       <Route path="pos" element={<POS />} />
+                      <Route path="tables" element={<Tables />} />
                     </Route>
 
                     {/* POS Management (Admin only) */}

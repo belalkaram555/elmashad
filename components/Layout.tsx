@@ -7,7 +7,7 @@ import {
   Truck, X, PanelLeftClose, PanelLeft, ShieldCheck,
   Search, ChevronDown, Sun, Moon,
   Receipt, Package, Gamepad2, CircleDot,
-  BarChart, History, UtensilsCrossed, AlertTriangle, Activity
+  BarChart, History, UtensilsCrossed, AlertTriangle, Activity, LayoutGrid
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
@@ -53,6 +53,7 @@ const MENU_GROUPS: MenuGroup[] = [
     labelEn: 'Point of Sale',
     items: [
       { id: 'pos', path: '/pos', labelAr: 'شاشة البيع', labelEn: 'Sales Screen', icon: ShoppingCart },
+      { id: 'tables', path: '/tables', labelAr: 'إدارة الطاولات', labelEn: 'Tables Management', icon: LayoutGrid },
       { id: 'shifts', path: '/pos/shifts', labelAr: 'الورديات', labelEn: 'Shifts', icon: History },
       { id: 'reports', path: '/pos/reports', labelAr: 'تقارير البيع', labelEn: 'POS Reports', icon: BarChart },
     ]
@@ -276,7 +277,7 @@ const Layout: React.FC = () => {
 
   const effectiveRole = userRole === 'cashier' ? 'cashier' : 'admin';
   const cashierAllowedPaths = useMemo(
-    () => new Set(['/pos', '/invoices/sales', '/gaming/playstation', '/gaming/billiard', '/inventory']),
+    () => new Set(['/pos', '/tables', '/invoices/sales', '/gaming/playstation', '/gaming/billiard', '/inventory']),
     []
   );
 

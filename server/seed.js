@@ -12,7 +12,7 @@ async function seedDatabase() {
     taxId: "123-456-789",
     addressAr: "15 شارع الجمهورية، القاهرة",
     phone: "02-12345678",
-    taxRate: 0.14,
+    taxRate: 0,
     serviceRate: 0.12,
     currencyEn: "EGP",
     currencyAr: "ج.م",

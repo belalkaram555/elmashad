@@ -280,3 +280,18 @@ export interface GamingSession {
   targetEndTime?: string;
   notes?: string;
 }
+
+export interface CustomerOrder {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  tableNumber: string;
+  items: CartItem[];
+  subtotal: number;
+  tax: number;
+  total: number;
+  status: 'pending' | 'accepted' | 'completed' | 'rejected';
+  sessionToken: string;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import {
   MenuItem, Order, InventoryItem, Employee, AppSettings, AttendanceRecord,
   Loan, Purchase, Warehouse, Customer, Supplier, TreasuryTransaction,
-  StockMovement, Notification, Category, Shift, Table, GamingDevice, GamingSession
+  StockMovement, Notification, Category, Shift, Table, GamingDevice, GamingSession,
+  CustomerOrder
 } from '../types';
 import { api, isOnline } from '../services/api';
 import {
@@ -18,7 +19,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   taxId: "123-456-789",
   addressAr: "15 شارع الجمهورية، القاهرة",
   phone: "02-12345678",
-  taxRate: 0.14,
+  taxRate: 0,
   serviceRate: 0.12,
   currencyEn: "EGP",
   currencyAr: "ج.م",
@@ -52,6 +53,9 @@ interface DataContextType {
   recallLastOrder: () => void;
   lastCompletedOrderId: string | null;
   nextOrderNumber: number;
+
+  customerOrders: CustomerOrder[];
+  refreshCustomerOrders: () => Promise<void>;
 
   tables: Table[];
   addTable: (t: Table) => void;
@@ -261,6 +265,18 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [gamingDevices, setGamingDevices] = useState<GamingDevice[]>([]);
   const [gamingSessions, setGamingSessions] = useState<GamingSession[]>([]);
   const [lastCompletedOrderId, setLastCompletedOrderId] = useState<string | null>(null);
+  const [customerOrders, setCustomerOrders] = useState<CustomerOrder[]>([]);
+
+  const refreshCustomerOrders = useCallback(async () => {
+    if (isOnline()) {
+      try {
+        const data = await api.customerOrders.list();
+        setCustomerOrders(data);
+      } catch (err) {
+        console.error('Failed to fetch customer orders:', err);
+      }
+    }
+  }, []);
 
   // ── Init sync service ──────────────────────────────────────────────────────
   useEffect(() => {
@@ -287,7 +303,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const [
             cats, menu, ords, whs, inv, smov, custs, sups, purs, treas,
             emps, att, lns, shfts, tbls, notifs, gDevices, gSessions,
-            settingsData, orderNum
+            settingsData, orderNum, custOrders
           ] = await Promise.all([
             api.categories.list(),
             api.menu.list(),
@@ -309,6 +325,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             api.gaming.listSessions(),
             api.settings.get(),
             api.counters.getOrderNumber(),
+            api.customerOrders.list(),
           ]);
 
           setCategories(cats);
@@ -328,6 +345,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setNotifications(notifs);
           setGamingDevices(gDevices);
           setGamingSessions(gSessions);
+          setCustomerOrders(custOrders);
           if (settingsData && Object.keys(settingsData).length > 0) {
           setSettings({ ...DEFAULT_SETTINGS, ...settingsData });
           }
@@ -781,6 +799,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       menuItems, setMenuItems, addMenuItem, updateMenuItem, deleteMenuItem,
       orders, setOrders, addOrder, updateOrder, deleteOrder, updateOrderStatus, recallLastOrder,
       lastCompletedOrderId, nextOrderNumber,
+      customerOrders, refreshCustomerOrders,
       tables, addTable, updateTable, deleteTable,
       inventory, setInventory, addInventoryItem, editInventoryItem, deleteInventoryItem, transferStock,
       warehouses, addWarehouse, updateWarehouse, deleteWarehouse,
